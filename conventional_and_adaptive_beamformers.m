@@ -1,3 +1,5 @@
+% MathWorks Script for Conventional and Adaptive Beamforming
+
 t = 0:0.001:0.3;                % Time, sampling frequency is 1kHz
 s = zeros(size(t));  
 s = s(:);                       % Signal in column vector
