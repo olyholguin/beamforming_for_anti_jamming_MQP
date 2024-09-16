@@ -4,17 +4,20 @@ t = 0:0.001:0.3;                % Time, sampling frequency is 1kHz
 s = zeros(size(t));  
 s = s(:);                       % Signal in column vector
 s(201:205) = s(201:205) + 1;    % Define the pulse
+figure(1);
 plot(t,s)
 title('Pulse')
 xlabel('Time (s)')
-ylabel('Amplitude (V)')
+ylabel('Amplitude (V)')         % Plots the signal in the time domain           
 
-carrierFreq = 100e6;
+carrierFreq = 100e6;            % 100MHz
 wavelength = physconst('LightSpeed')/carrierFreq;
 
+% Uniform Linear Array with 10 elements
 ula = phased.ULA('NumElements',10,'ElementSpacing',wavelength/2);
 ula.Element.FrequencyRange = [90e5 110e6];
 
+% Defines the angle of arrival and elevation of arrival
 inputAngle = [45; 0];
 x = collectPlaneWave(ula,s,inputAngle,carrierFreq);
 
@@ -27,7 +30,8 @@ noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x)));
 
 rxSignal = x + noise;
 
-
+% of the 10 elements, 2 are plotted
+figure(2);
 subplot(211)
 plot(t,abs(rxSignal(:,1)))
 axis tight
@@ -41,13 +45,15 @@ title('Pulse at Antenna 2')
 xlabel('Time (s)')
 ylabel('Magnitude (V)')
 
-%%%Phase Shift Beamformer
+% Phase Shift Beamformer (conventional)
 psbeamformer = phased.PhaseShiftBeamformer('SensorArray',ula,...
     'OperatingFrequency',carrierFreq,'Direction',inputAngle,...
     'WeightsOutputPort', true);
 [yCbf,w] = psbeamformer(rxSignal);
+
 % Plot the output
 clf
+figure(3);
 plot(t,abs(yCbf))
 axis tight
 title('Output of Phase Shift Beamformer')
@@ -55,45 +61,56 @@ xlabel('Time (s)')
 ylabel('Magnitude (V)')
 
 % Plot array response with weighting
+figure(4);
 pattern(ula,carrierFreq,-180:180,0,'Weights',w,'Type','powerdb',...
     'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
     'CoordinateSystem','rectangular')
 axis([-90 90 -60 0]);
 
-%%%%Modeling the interference Signals
+% Modeling the interference Signals
 nSamp = length(t);
 s1 = 10*randn(rs,nSamp,1);
 s2 = 10*randn(rs,nSamp,1);
+
 % interference at 30 degrees and 50 degrees
 interference = collectPlaneWave(ula,[s1 s2],[30 50; 0 0],carrierFreq);
 
+% low level of noise is added to compare phaseshift o/p with interference
 noisePwr = 0.00001;   % noise power, 50dB SNR 
 noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x)));
 
-rxInt = interference + noise;                 % total interference + noise
-rxSignal = x + rxInt;                % total received Signal
+rxInt = interference + noise;       % total interference + noise
+rxSignal = x + rxInt;               % total received Signal
 
 yCbf = psbeamformer(rxSignal);
 
+figure(5);
 plot(t,abs(yCbf))
 axis tight
 title('Output of Phase Shift Beamformer With Presence of Interference')
-xlabel('Time (s)');ylabel('Magnitude (V)')
+xlabel('Time (s)')
+ylabel('Magnitude (V)')
 
-%%%%%%MVDR Beamformer
-% Define the MVDR beamformer
+% MVDR Beamformer
+% This also uses the uniform linear array
 mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ula,...
     'Direction',inputAngle,'OperatingFrequency',carrierFreq,...
     'WeightsOutputPort',true);
 
+% training input is how the mvdr can learn from itself
 mvdrbeamformer.TrainingInputPort = true;
 
 [yMVDR, wMVDR] = mvdrbeamformer(rxSignal,rxInt);
 
-plot(t,abs(yMVDR)); axis tight;
+figure(6);
+plot(t,abs(yMVDR))
+axis tight;
 title('Output of MVDR Beamformer With Presence of Interference');
-xlabel('Time (s)');ylabel('Magnitude (V)');
+xlabel('Time (s)')
+ylabel('Magnitude (V)')
 
+% Response pattern of the beamformer, azimuth vs. power
+figure(7);
 pattern(ula,carrierFreq,-180:180,0,'Weights',wMVDR,'Type','powerdb',...
     'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
     'CoordinateSystem','rectangular');
@@ -106,26 +123,32 @@ pattern(ula,carrierFreq,-180:180,0,'Weights',w,...
 hold off;
 legend('MVDR','PhaseShift')
 
-%%%%%Self Nulling Issue in MVDR
+% Self Nulling Issue in MVDR
 mvdrbeamformer_selfnull = phased.MVDRBeamformer('SensorArray',ula,...
     'Direction',inputAngle,'OperatingFrequency',carrierFreq,...
     'WeightsOutputPort',true,'TrainingInputPort',false);
 
+% if signal is slightly off, mvdr output is not useful
 expDir = [43; 0];
 mvdrbeamformer_selfnull.Direction = expDir;
 
 [ySn, wSn] = mvdrbeamformer_selfnull(rxSignal);
 
-plot(t,abs(ySn)); axis tight;
+figure(8);
+plot(t,abs(ySn)); 
+axis tight;
 title('Output of MVDR Beamformer With Signal Direction Mismatch');
-xlabel('Time (s)');ylabel('Magnitude (V)');
+xlabel('Time (s)');
+ylabel('Magnitude (V)');
 
+% also plots the angle perspective with slight mismatch
+figure(9);
 pattern(ula,carrierFreq,-180:180,0,'Weights',wSn,'Type','powerdb',...
     'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
     'CoordinateSystem','rectangular');
 axis([-90 90 -40 25]);
 
-%%%%LCMV Beamformer
+% LCMV Beamformer
 lcmvbeamformer = phased.LCMVBeamformer('WeightsOutputPort',true);
 
 steeringvec = phased.SteeringVector('SensorArray',ula);
@@ -136,10 +159,16 @@ lcmvbeamformer.DesiredResponse = [1; 1; 1];
 
 [yLCMV,wLCMV] = lcmvbeamformer(rxSignal);
 
-plot(t,abs(yLCMV)); axis tight;
+% Plots LCMV output with slight mismatch that mvdr could not handle
+figure(10);
+plot(t,abs(yLCMV)); 
+axis tight;
 title('Output of LCMV Beamformer With Signal Direction Mismatch');
-xlabel('Time (s)');ylabel('Magnitude (V)');
+xlabel('Time (s)');
+ylabel('Magnitude (V)');
 
+% And plots angle representation
+figure(11);
 pattern(ula,carrierFreq,-180:180,0,'Weights',wLCMV,'Type','powerdb',...
     'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
     'CoordinateSystem','rectangular');
@@ -152,7 +181,9 @@ pattern(ula,carrierFreq,-180:180,0,'Weights',wSn,...
 hold off;
 legend('LCMV','MVDR');
 
-%%%%%2D Array Beamforming
+% 2D Array Beamforming
+% this section introduces a Uniform Rectangular Array
+% that can change signals in azimuth and elevation
 colSp = 0.5*wavelength;
 rowSp = 0.4*wavelength;
 ura = phased.URA('Size',[10 5],'ElementSpacing',[rowSp colSp]);
@@ -164,10 +195,10 @@ noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x)));
 s1 = 10*randn(rs,nSamp,1);
 s2 = 10*randn(rs,nSamp,1);
 
-%interference at [30; 10] and at [50; -5]
+% interference at [30; 10] and at [50; -5]
 interference = collectPlaneWave(ura,[s1 s2],[30 50; 10 -5],carrierFreq);
-rxInt = interference + noise;                 % total interference + noise
-rxSignal = x + rxInt;                % total received signal
+rxInt = interference + noise;   % total interference + noise
+rxSignal = x + rxInt;           % total received signal
 
 mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
     'Direction',inputAngle,'OperatingFrequency',carrierFreq,...
@@ -175,10 +206,15 @@ mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
 
 [yURA,w]= mvdrbeamformer(rxSignal,rxInt);
 
-plot(t,abs(yURA)); axis tight;
+figure(12);
+plot(t,abs(yURA)); 
+axis tight;
 title('Output of MVDR Beamformer for URA');
-xlabel('Time (s)');ylabel('Magnitude (V)');
+xlabel('Time (s)');
+ylabel('Magnitude (V)');
 
+% Shows the input at -5 degrees elevation and 10 degress elevation
+figure(13);
 subplot(2,1,1);
 pattern(ura,carrierFreq,-180:180,-5,'Weights',w,'Type','powerdb',...
     'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
