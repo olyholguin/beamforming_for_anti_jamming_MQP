@@ -11,7 +11,7 @@ xlabel('Time (s)')
 ylabel('Amplitude (V)')         % Plots the signal in the time domain           
 
 carrierFreq = 100e6;            % 100MHz
-wavelength = physconst('LightSpeed')/carrierFreq;
+wavelength = physconst('LightSpeed')/carrierFreq; %wavelength is in meters
 
 % Uniform Linear Array with 10 elements
 ula = phased.ULA('NumElements',10,'ElementSpacing',wavelength/2);
