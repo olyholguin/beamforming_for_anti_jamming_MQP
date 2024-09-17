@@ -4,7 +4,7 @@ t = 0:0.001:0.3;                % Time, sampling frequency is 1kHz
 s = zeros(size(t));  
 s = s(:);                       % Signal in column vector
 s(201:205) = s(201:205) + 1;    % Define the pulse
-figure(1);
+figure(1);                      % Received signal is a rectangular pulse
 plot(t,s)
 title('Pulse')
 xlabel('Time (s)')
@@ -13,7 +13,8 @@ ylabel('Amplitude (V)')         % Plots the signal in the time domain
 carrierFreq = 100e6;            % 100MHz
 wavelength = physconst('LightSpeed')/carrierFreq; %wavelength is in meters
 
-% Uniform Linear Array with 10 elements
+% Uniform Linear Array with 10 elements, 
+% spacing between them is set to half the wavelength of the carrier wave 
 ula = phased.ULA('NumElements',10,'ElementSpacing',wavelength/2);
 ula.Element.FrequencyRange = [90e5 110e6];
 
@@ -149,14 +150,24 @@ pattern(ula,carrierFreq,-180:180,0,'Weights',wSn,'Type','powerdb',...
 axis([-90 90 -40 25]);
 
 % LCMV Beamformer
+% Initialize an LCMV beamformer object. 'WeightsOutputPort',true specifies
+% that the beamforming weights will be output along with the beamformed signal
 lcmvbeamformer = phased.LCMVBeamformer('WeightsOutputPort',true);
 
+% Create a steering vector object for the uniform linear array 
+% Generate the steering vectors for three directions: [43, 41, 45] degrees 
+% at a specific carrier frequency (carrierFreq).
 steeringvec = phased.SteeringVector('SensorArray',ula);
 stv = steeringvec(carrierFreq,[43 41 45]);
 
+% Set the beamformer's constraint to match the steering vector.
+% This ensures that the beamformer maintains unity gain in the desired directions
 lcmvbeamformer.Constraint = stv;
+% Define the desired response in the directions of interest. In this case,
+% we are specifying equal response (1) for the three directions.
 lcmvbeamformer.DesiredResponse = [1; 1; 1];
 
+% Apply the LCMV beamformer to recived signal
 [yLCMV,wLCMV] = lcmvbeamformer(rxSignal);
 
 % Plots LCMV output with slight mismatch that mvdr could not handle
