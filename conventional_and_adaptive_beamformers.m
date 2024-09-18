@@ -19,7 +19,7 @@ ula = phased.ULA('NumElements',10,'ElementSpacing',wavelength/2);
 ula.Element.FrequencyRange = [90e5 110e6];
 
 % Defines the angle of arrival and elevation of arrival
-inputAngle = [45; 0];
+inputAngle = [45; 0]; %[azimuth angle, elevation]
 x = collectPlaneWave(ula,s,inputAngle,carrierFreq);
 
 % Create and reset a local random number generator so the result is the
