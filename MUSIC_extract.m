@@ -21,11 +21,11 @@ doa1 = [42;-8];
 fc = carrierFreq;
 colSp = 0.5*wavelength;
 rowSp = 0.4*wavelength;
-ura = phased.URA('Size',[10 5],'ElementSpacing',[rowSp colSp]);
+ura = phased.URA('Size',[10 5],'ElementSpacing',[rowSp colSp]); %Change to 2x2 or 4x4, for N310
 ura.Element.FrequencyRange = [90e5 110e6];
 
 x = collectPlaneWave(ura,s,doa1,carrierFreq);
-noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x)));
+noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x))); % increase noise power reduces accuracy of DOA estimation
 
 estimator = phased.MUSICEstimator2D('SensorArray',ura,...
     'OperatingFrequency',fc,...
@@ -36,6 +36,7 @@ estimator = phased.MUSICEstimator2D('SensorArray',ura,...
 [~,doas] = estimator(x + noise)
 figure(2);
 plotSpectrum(estimator);
+%Iteration of reciving to update weights based on DOA
 
 
 %DOA for Specific Array Geometries (ULA)
