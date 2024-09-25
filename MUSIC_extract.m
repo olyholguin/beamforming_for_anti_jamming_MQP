@@ -38,6 +38,24 @@ figure(2);
 plotSpectrum(estimator);
 
 
+%DOA for Specific Array Geometries (ULA)
+%Plot MUSIC Spectrum of Two Signals Arriving at ULA
+fc = carrierFreq;
+array = phased.ULA('NumElements',10,'ElementSpacing',1.0);
+doa2 = [42;-8];
+sig = collectPlaneWave(array,s,doa2,fc);
+noise = 0.1*(randn(size(sig)) + 1i*randn(size(sig)));
+
+estimator = phased.MUSICEstimator('SensorArray',array,...
+    'OperatingFrequency',fc,...
+    'DOAOutputPort',true,'NumSignalsSource','Property',...
+    'NumSignals',2);
+[y,doas] = estimator(sig + noise);
+doas = broadside2az(sort(doas),[20 -5])
+figure(3);
+plotSpectrum(estimator,'NormalizeResponse',true)
+
+
 %{
 %DOA for Specific Array Geometries (ULA)
 %Plot MUSIC Spectrum of Two Signals Arriving at ULA
