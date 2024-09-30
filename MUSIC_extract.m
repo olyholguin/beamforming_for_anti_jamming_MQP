@@ -17,7 +17,7 @@ wavelength = physconst('LightSpeed')/carrierFreq; %wavelength is in meters
 
 
 %DOA for Arbitrary Array Geometries (URA)
-doa1 = [42;-8];
+doa1 = [45;0];
 fc = carrierFreq;
 colSp = 0.5*wavelength;
 rowSp = 0.4*wavelength;
@@ -43,7 +43,7 @@ plotSpectrum(estimator);
 %Plot MUSIC Spectrum of Two Signals Arriving at ULA
 fc = carrierFreq;
 array = phased.ULA('NumElements',10,'ElementSpacing',1.0);
-doa2 = [42;-8];
+doa2 = [45;0];
 sig = collectPlaneWave(array,s,doa2,fc);
 noise = 0.1*(randn(size(sig)) + 1i*randn(size(sig)));
 
