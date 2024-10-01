@@ -21,12 +21,13 @@ doa1 = [45;0];
 fc = carrierFreq;
 colSp = 0.5*wavelength;
 rowSp = 0.4*wavelength;
-ura = phased.URA('Size',[10 5],'ElementSpacing',[rowSp colSp]); %Change to 2x2 or 4x4, for N310
+ura = phased.URA('Size',[10 5],'ElementSpacing',[rowSp colSp]); %Change to 2x2 or 4x1, for N310
 ura.Element.FrequencyRange = [90e5 110e6];
 
 x = collectPlaneWave(ura,s,doa1,carrierFreq);
-noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x))); % increase noise power reduces accuracy of DOA estimation
-
+rs = RandStream.create('mt19937ar','Seed',2008);
+noisePwr = .5;   % noise power 
+noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x)));
 estimator = phased.MUSICEstimator2D('SensorArray',ura,...
     'OperatingFrequency',fc,...
     'NumSignalsSource','Property',...
