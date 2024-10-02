@@ -33,7 +33,7 @@ estimator = phased.MUSICEstimator('SensorArray',ula,...
     'OperatingFrequency',fc,'ScanAngles',-50:.5:50,...
     'DOAOutputPort',true,'NumSignalsSource','Property',...
     'NumSignals',1);
-[y,doaEstimate] = estimator(x + noise);
+[~,doaEstimate] = estimator(x + noise);
 doas = broadside2az(sort(doaEstimate),[-20 5])
 figure(2);
 plotSpectrum(estimator,'NormalizeResponse',true)
@@ -57,5 +57,4 @@ diff = outputDOA(:,2)-outputDOA(:,1);
 plot(outputDOA(:,1),diff)
 title("ULA Measured - Given Azimuth Angle");
 xlim([-50 50]);
-ylim([-7 7]);
 yline(0);
