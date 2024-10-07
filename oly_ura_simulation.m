@@ -24,7 +24,7 @@ estimator2D = phased.MUSICEstimator2D('SensorArray',ura,...
     'DOAOutputPort',true,'NumSignals',1,...
     'AzimuthScanAngles',-50:.5:50,...
     'ElevationScanAngles',-30:.5:30);
-
+%{
 outputDoA = zeros(101,2);
 
 for i = -50:1:50
@@ -45,7 +45,7 @@ title("Measured Azimuth Angle - Given Azimuth Angle")
 xlim([-50 50])
 ylim([-7 7])
 yline(0)
-
+%}
 
 doa1 = [45;0];
 fc = carrierFreq;
@@ -73,3 +73,24 @@ fprintf("Given DoA: %d %d \n", doa1(1,1), doa1(2,1))
 % fprintf()
 % fprintf()
 fprintf("Received Doa: %d %d \n", doas2D(1,1), doas2D(2,1))
+
+mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
+    'Direction',doas2D,'OperatingFrequency',carrierFreq,...
+    'TrainingInputPort',true,'WeightsOutputPort',true);
+rxSignal = x+noise;
+[yURA,w]= mvdrbeamformer(rxSignal, noise);
+
+figure(12);
+plot(t,abs(yURA)); 
+axis tight;
+title('Output of MVDR Beamformer for URA');
+xlabel('Time (s)');
+ylabel('Magnitude (V)');
+
+figure(14);
+pattern(ura,carrierFreq,-180:180,0,'Weights',w,'Type','powerdb',...
+    'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
+    'CoordinateSystem','rectangular');
+%axis([-90 90 -60 -5]);
+title('Response Pattern at 0 Degrees Elevation');
+
