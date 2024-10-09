@@ -21,12 +21,12 @@ doa1 = [45;0];
 fc = carrierFreq;
 colSp = 0.5*wavelength;
 rowSp = 0.4*wavelength;
-ura = phased.URA('Size',[10 5],'ElementSpacing',[rowSp colSp]); %Change to 2x2 or 4x1, for N310
+ura = phased.URA('Size',[2 2],'ElementSpacing',[rowSp colSp]); %Change to 2x2 or 4x1, for N310
 ura.Element.FrequencyRange = [90e5 110e6];
 
 x = collectPlaneWave(ura,s,doa1,carrierFreq);
 rs = RandStream.create('mt19937ar','Seed',2008);
-noisePwr = .5;   % noise power 
+noisePwr = 0.05;   % noise power 
 noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x)));
 estimator = phased.MUSICEstimator2D('SensorArray',ura,...
     'OperatingFrequency',fc,...
@@ -34,7 +34,7 @@ estimator = phased.MUSICEstimator2D('SensorArray',ura,...
     'DOAOutputPort',true,'NumSignals',1,...
     'AzimuthScanAngles',-50:.5:50,...
     'ElevationScanAngles',-30:.5:30);
-[~,doas] = estimator(x + noise)
+[~,doasURA] = estimator(x + noise)
 figure(2);
 plotSpectrum(estimator);
 %Iteration of reciving to update weights based on DOA
@@ -51,7 +51,7 @@ noise = 0.1*(randn(size(sig)) + 1i*randn(size(sig)));
 estimator = phased.MUSICEstimator('SensorArray',array,...
     'OperatingFrequency',fc,...
     'DOAOutputPort',true,'NumSignalsSource','Property',...
-    'NumSignals',2);
+    'NumSignals',1);
 [y,doas] = estimator(sig + noise);
 doas = broadside2az(sort(doas),[20 -5])
 figure(3);
