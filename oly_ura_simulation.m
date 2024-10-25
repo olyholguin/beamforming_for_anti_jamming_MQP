@@ -94,3 +94,29 @@ pattern(ura,carrierFreq,-180:180,0,'Weights',w,'Type','powerdb',...
 %axis([-90 90 -60 -5]);
 title('Response Pattern at 0 Degrees Elevation');
 
+%%%%%%%%%%%%%%%%%polar plot 
+% Define scan angles (ensure it matches the output's resolution)
+theta_scan = linspace(-pi, pi, length(yURA));  % From -180 to 180 degrees
+
+% Process MVDR output: Take magnitude and convert to dB (if needed)
+beam_pattern = 10 * log10(abs(yURA) + eps);  % Avoid log(0) with eps
+
+% Create the polar plot
+fig = figure;
+ax = polaraxes;
+
+% Plot beam pattern in polar coordinates
+polarplot(ax, theta_scan, beam_pattern, 'LineWidth', 2);
+
+% Set plot properties for better visualization
+ax.ThetaZeroLocation = 'top';       % 0 degrees points up (North)
+ax.ThetaDir = 'clockwise';          % Clockwise angle increase
+ax.RLim = [-50 0];                  % Set radial limits for dB scale
+
+% Add optional labels and title
+title('MVDR Beam Pattern');
+ax.RAxisLabel.String = 'Gain (dB)';
+ax.RAxisLocation = 55;              % Adjust radial axis label position
+
+% Show the figure
+show(fig);
