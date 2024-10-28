@@ -6,6 +6,7 @@ mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
     'TrainingInputPort',true,'WeightsOutputPort',true);
 rxSignal = x + noise;
 [yURA, w]= mvdrbeamformer(rxSignal, noise);
+% [yURA, w]= mvdrbeamformer(rxSignal,0);
 
 figure;
 plot(t,abs(yURA)); 
