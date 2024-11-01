@@ -5,11 +5,11 @@ t = 0:0.001:0.3;                % Time, sampling frequency is 1kHz
 s = zeros(size(t));  
 s = s(:);                       % Signal in column vector
 s(201:205) = s(201:205) + 1;    % Define the pulse
-figure(1);                      % Received signal is a rectangular pulse
-plot(t,s)
-title('Pulse')
-xlabel('Time (s)')
-ylabel('Amplitude (V)')         % Plots the signal in the time domain           
+% figure(1);                      % Received signal is a rectangular pulse
+% plot(t,s)
+% title('Pulse')
+% xlabel('Time (s)')
+% ylabel('Amplitude (V)')         % Plots the signal in the time domain           
 
 carrierFreq = 100e6;            % 100MHz
 wavelength = physconst('LightSpeed')/carrierFreq; %wavelength is in meters
@@ -35,8 +35,8 @@ estimator = phased.MUSICEstimator2D('SensorArray',ura,...
     'AzimuthScanAngles',-50:.5:50,...
     'ElevationScanAngles',-30:.5:30);
 [~,doasURA] = estimator(x + noise)
-figure(2);
-plotSpectrum(estimator);
+% figure(2);
+% plotSpectrum(estimator);
 %Iteration of reciving to update weights based on DOA
 
 
@@ -44,18 +44,27 @@ plotSpectrum(estimator);
 %Plot MUSIC Spectrum of Two Signals Arriving at ULA
 fc = carrierFreq;
 array = phased.ULA('NumElements',10,'ElementSpacing',1.0);
-doa2 = [45;0];
+doa2 = [45];
 sig = collectPlaneWave(array,s,doa2,fc);
-noise = 0.1*(randn(size(sig)) + 1i*randn(size(sig)));
+
+averageMatrix = zeros(100,1);
+
+for i = 1:100
+  rs = RandStream.create('mt19937ar', 'Seed', 2007+i);
+noise = sqrt(noisePwr/2)*(randn(rs,size(sig))+1i*randn(rs,size(sig)));
+%noise = 0.1*(randn(size(sig)) + 1i*randn(size(sig)));
 
 estimator = phased.MUSICEstimator('SensorArray',array,...
     'OperatingFrequency',fc,...
     'DOAOutputPort',true,'NumSignalsSource','Property',...
     'NumSignals',1);
 [y,doas] = estimator(sig + noise);
-doas = broadside2az(sort(doas),[20 -5])
-figure(3);
-plotSpectrum(estimator,'NormalizeResponse',true)
+% doas
+averageMatrix(i, 1) = doas(1,1);
+doas_broadside = broadside2az(sort(doas),[20 -5]);
+end
+% figure(3);
+% plotSpectrum(estimator,'NormalizeResponse',true)
 
 
 %{
