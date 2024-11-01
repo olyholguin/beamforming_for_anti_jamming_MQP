@@ -1,4 +1,4 @@
-function [ura, x, noise] = createSignal(t, carrierFreq, colSp, rowSp, noisePwr, doa)
+function [ura, x, noise] = createSignal(t, carrierFreq, colSp, rowSp, noisePwr, doa,i)
 % createSignal creates a rectangular pulse using carrierFreq, colSp, rowSp 
 % function outputs URA and noise
 
@@ -14,7 +14,8 @@ ura = phased.URA('Size',[2 2],'ElementSpacing',[rowSpacing colSpacing]); % N310 
 ura.Element.FrequencyRange = [90e5 110e6];
 
 x = collectPlaneWave(ura, s, doa, carrierFreq);
-rs = RandStream.create('mt19937ar', 'Seed', 2008);
+%rs = RandStream.create('mt19937ar');
+rs = RandStream.create('mt19937ar', 'Seed', 2007+i);
 noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x)));
 
 end
