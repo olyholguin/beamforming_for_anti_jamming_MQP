@@ -9,7 +9,7 @@ wavelength = physconst('LightSpeed')/carrierFreq; % wavelength is in meters
 rowSpacing = rowSp * wavelength;
 colSpacing = colSp * wavelength;
 
-ura = phased.URA('Size',[10 5],'ElementSpacing',[rowSpacing colSpacing]); % N310 is 4T4R
+ura = phased.URA('Size',[2 2],'ElementSpacing',[rowSpacing colSpacing]); % N310 is 4T4R
 % make frequencies based off of carrierFreq
 ura.Element.FrequencyRange = [90e5 110e6];
 

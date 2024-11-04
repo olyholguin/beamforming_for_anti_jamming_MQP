@@ -8,22 +8,22 @@ rxSignal = x + noise;
 [yURA, w]= mvdrbeamformer(rxSignal, noise);
 % [yURA, w]= mvdrbeamformer(rxSignal,0);
 
-% figure;
-% plot(t,abs(yURA)); 
-% axis tight;
-% title('Output of MVDR Beamformer for URA');
-% xlabel('Time (s)');
-% ylabel('Magnitude (V)');
-% 
-% figure;
-% p = pattern(ura, carrierFreq, -180:180, 0 ,'Weights', w,'Type','powerdb',...
-%     'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
-%     'CoordinateSystem','rectangular');
-% plot(p)
-% title('Response Pattern at 0 Degrees Elevation');
-% 
-% figure;
-% polarpattern(p);
-% title('MVDR Beam Pattern');
+figure;
+plot(t,abs(yURA)); 
+axis tight;
+title('Output of MVDR Beamformer for URA');
+xlabel('Time (s)');
+ylabel('Magnitude (V)');
+
+figure;
+p = pattern(ura, carrierFreq, -180:180, 0 ,'Weights', w,'Type','powerdb',...
+    'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
+    'CoordinateSystem','rectangular');
+plot(p)
+title('Response Pattern at 0 Degrees Elevation');
+
+figure;
+polarpattern(p);
+title('MVDR Beam Pattern');
 
 end
