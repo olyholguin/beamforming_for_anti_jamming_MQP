@@ -34,7 +34,9 @@ averageMatrix = zeros(1, 2);
 for i = 1:1
 [ura, x, noise] = createSignal(t, carrierFreq, colSp, rowSp, noisePwr, doa,i);
 
-[y] = barrage_Jammer(bjammerPwr);
+[y] = barrage_Jammer(bjammerPwr); 
+%Simulate y (jamming signal) with a direction relative to our recivers
+%Then change its location to simulate it moving
 % [y2] = barrage_Jammer(bjammerPwr);
 % [y3] = barrage_Jammer(bjammerPwr);
 % [y4] = barrage_Jammer(bjammerPwr);
