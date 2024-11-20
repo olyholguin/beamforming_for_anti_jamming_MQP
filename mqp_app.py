@@ -7,6 +7,7 @@ import scipy.linalg as lin
 from scipy.linalg import eig, eigh
 import scipy.constants as const
 import pyroomacoustics as pra
+# from scipy.signal import music
 
 time = np.linspace(0.0, 0.3, 300)
 carrier_freq = 100e6
@@ -117,14 +118,17 @@ doa_estimates = doa
 R = np.array([[0, 0], [1, 0]])  # Example: 2 microphones on x-axis
 
 # Create a MUSIC estimator
-doa = pra.doa.MUSIC(R, fs=100e6, nfft=512)
+# doa = pra.doa.MUSIC(R, fs=100e6, nfft=512)
+# doa = pra.doa.locate_sources(x)
+
+music_spectrum = sig.music(x, 1, const.c/carrier_freq/2, const.c/carrier_freq)
 
 # Perform DOA estimation
-X = sig.stft(x)  # STFT of the received signal
-doa.locate_sources(X, freq_bins=np.arange(20, 40))
+# X = sig.stft(x)  # STFT of the received signal
+# doa.locate_sources(X, freq_bins=np.arange(20, 40))
 
 # Access the estimated DOAs
-print("DoA info: ", doa.azimuth_recon)
+# print("DoA info: ", doa.azimuth_recon)
 
 
 
