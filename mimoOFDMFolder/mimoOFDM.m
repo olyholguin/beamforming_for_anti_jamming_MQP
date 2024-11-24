@@ -1,5 +1,6 @@
-addpath 'C:\Users\olivi\Documents\MATLAB\beamforming_for_anti_jamming_MQP'
-%addpath 'C:\Users\lauren\Documents\MATLAB\beamforming_for_anti_jamming_MQP'
+% addpath 'C:\Users\olivi\Documents\MATLAB\beamforming_for_anti_jamming_MQP'
+% addpath 'C:\Users\lauren\Documents\MATLAB\beamforming_for_anti_jamming_MQP'
+% addpath './mimoOFDMFolder'
 t = 0:0.001:0.3;            % time, sampling frequency is 1kHz
 carrierFreq = 100e6;        % 100MHz
 colSp = 0.5;
