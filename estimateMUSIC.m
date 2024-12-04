@@ -9,9 +9,9 @@ estimator2D = phased.MUSICEstimator2D('SensorArray',ura,...
     'ElevationScanAngles',-30:.5:30);
 [~,doas] = estimator2D(x + noise);
 
-figure;
-plotSpectrum(estimator2D);
-title("URA 2x2 with 2D MUSIC Estimator");
+% figure;
+% plotSpectrum(estimator2D);
+% title("URA 2x2 with 2D MUSIC Estimator");
 
 fprintf("Received Doa: %d %d \n", doas(1,1), doas(2,1))
 averageMatrix(i, 1) = doas(1,1);
