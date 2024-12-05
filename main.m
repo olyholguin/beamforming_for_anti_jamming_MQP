@@ -25,14 +25,17 @@ t = 0:0.001:0.3;            % time, sampling frequency is 1kHz
 carrierFreq = 100e6;        % 100MHz
 colSp = 0.5;
 rowSp = 0.4;
+pulseHeight = 1;
 noisePwr = 0.05;
 bjammerPwr = .01;
 doa = [45;0];
+azimuth_range = [-50 50];
+elevation_range = [-22.5 22.5];
 
 averageMatrix = zeros(1, 2);
 
 for i = 1:1
-[ura, x, noise] = createSignal(t, carrierFreq, colSp, rowSp, noisePwr, doa,i);
+[ura, x, noise] = createSignal(t, carrierFreq, colSp, rowSp, noisePwr, doa, i, pulseHeight);
 
 [y] = barrage_Jammer(bjammerPwr); 
 %Simulate y (jamming signal) with a direction relative to our recivers
@@ -59,7 +62,10 @@ xlabel('Watts')
 x = signal_jammed;
 fprintf("Given DoA: %d %d \n", doa(1,1), doa(2,1))
 
-[doas, averageMatrix] = estimateMUSIC(ura, x, noise, carrierFreq, averageMatrix, i); 
+rs = RandStream.create('mt19937ar', 'Seed', 2007+i);
+noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x)));
+
+[doas, averageMatrix] = estimateMUSIC(ura, x, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range); 
 end
 
 [signal, weights] = beamformerMVDR(ura, x, noise, doas, t, carrierFreq);
