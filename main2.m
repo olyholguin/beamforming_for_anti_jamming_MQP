@@ -72,6 +72,11 @@ jamsig = collector(jamsig,jamang);
 rx_xB = collectPlaneWave(ura, x, doa, carrierFreq);
 noise = sqrt(noisePwr/2)*(randn(rs,size(rx_xB))+1i*randn(rs,size(rx_xB)));
 rx_xB_jamsig = rx_xB + jamsig;
+rx_xB_jamsig_noise = rx_xB_jamsig + noise; % "Realistic" full rx, not used
+before_MVDR_1noise = snr(rx_xB_jamsig, noise);
+% before_MVDR_2noise = snr(rx_xB_jamsig_noise,noise);
+disp("before_MVDR_1noise: " + num2str(before_MVDR_1noise));
+% disp("before_MVDR_2noise: " + num2str(before_MVDR_2noise));
 
 [doas, averageMatrix] = estimateMUSIC(ura, rx_xB_jamsig, noise, carrierFreq, ...
     averageMatrix, i, azimuth_range, elevation_range); 
@@ -106,5 +111,7 @@ switch true
         % Perform MVDR Beamforming
         disp('Running MVDR Script');
         [signal, weights] = beamformerMVDR(ura, rx_xB_jamsig, noise, doas, t, carrierFreq);
+        after_MVDR_1noise = snr(signal, noise(:,1));
+        disp("after_MVDR_1noise : " + num2str(after_MVDR_1noise));
 end
 
