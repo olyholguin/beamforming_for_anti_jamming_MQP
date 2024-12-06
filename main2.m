@@ -75,19 +75,16 @@ rx_xB_jamsig = rx_xB + jamsig;
 rx_xB_jamsig_noise = rx_xB_jamsig + noise; % "Realistic" full rx, not used
 before_MVDR_1noise = snr(rx_xB_jamsig, noise);
 % before_MVDR_2noise = snr(rx_xB_jamsig_noise,noise);
-disp("before_MVDR_1noise: " + num2str(before_MVDR_1noise));
+disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
 % disp("before_MVDR_2noise: " + num2str(before_MVDR_2noise));
-
 [doas, averageMatrix] = estimateMUSIC(ura, rx_xB_jamsig, noise, carrierFreq, ...
-    averageMatrix, i, azimuth_range, elevation_range); 
-fprintf("Given DoA: %d %d \n", doa(1,1), doa(2,1))
-
+   averageMatrix, i, azimuth_range, elevation_range);
+fprintf("Given DoA: \t%.2f \t%.2f \n", doa(1,1), doa(2,1))
 doa_NaN = isnan(doas(1,1)) || isnan(doas(2,1));
 if(doa_NaN == 1)
-    disp("DOAs are NaN");
-    return;
+   disp("DOAs are NaN");
+   return;
 end
-
 percent_error_1_1 = abs(doas(1,1) - doa(1,1)) / azimuth_span * 100;
 percent_error_2_1 = abs(doas(2,1) - doa(2,1)) / elevation_span * 100;
 total_percent_error = (percent_error_1_1 + percent_error_2_1) / 2;
@@ -95,23 +92,22 @@ total_percent_error = (percent_error_1_1 + percent_error_2_1) / 2;
 disp(['Azimuth Angle Percent Error: ', num2str(percent_error_1_1), '%']);
 disp(['Elevation Angle Percent Error: ', num2str(percent_error_2_1), '%']);
 disp(['Average Angle Percent Error: ', num2str(total_percent_error), '%']);
-
 switch true
-    case (total_percent_error > 15)
-        disp('Percent Error Greater than 15');
-        % Run Things again
-        return;
-    case (total_percent_error > 10)
-        disp('Percent Error Greater than 10');
-        return;
-    case (total_percent_error > 5)
-        disp('Percent Error Greater than 5');
-        return;
-    otherwise
-        % Perform MVDR Beamforming
-        disp('Running MVDR Script');
-        [signal, weights] = beamformerMVDR(ura, rx_xB_jamsig, noise, doas, t, carrierFreq);
-        after_MVDR_1noise = snr(signal, noise(:,1));
-        disp("after_MVDR_1noise : " + num2str(after_MVDR_1noise));
+   case (total_percent_error > 15)
+       disp('Percent Error Greater than 15%');
+       % Run Things again
+       return;
+   case (total_percent_error > 10)
+       disp('Percent Error Greater than 10%');
+       return;
+   case (total_percent_error > 5)
+       disp('Percent Error Greater than 5%');
+       return;
+   otherwise
+       % Perform MVDR Beamforming
+       disp('Running MVDR Script...');
+       [signal, weights] = beamformerMVDR(ura, rx_xB_jamsig, noise, doas, t, carrierFreq);
+       after_MVDR_1noise = snr(signal, noise(:,1));
+       disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
 end
 
