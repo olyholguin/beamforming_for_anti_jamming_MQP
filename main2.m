@@ -41,10 +41,13 @@ targetlocB = [100 ; 0; 0];
 targetlocA = [0 ; 0; 0];
 jammerloc = [50; 50; 0];
 [~,tgtang] = rangeangle(targetlocB);
+% [~,tg2tang] = rangeangle(targetlocA);
 [~,jamang] = rangeangle(jammerloc);
 
 % Transmit waveform
 [x, txstatus] = transmitter(x);
+% %B to A
+% [x, txstatus] = transmitter(x);
 
 % Radiate pulse toward the target
 x = radiator(x,doa);
@@ -77,7 +80,7 @@ before_MVDR_1noise = snr(rx_xB_jamsig, noise);
 % before_MVDR_2noise = snr(rx_xB_jamsig_noise,noise);
 disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
 % disp("before_MVDR_2noise: " + num2str(before_MVDR_2noise));
-[doas, averageMatrix] = estimateMUSIC(ura, rx_xB_jamsig, noise, carrierFreq, ...
+[doas, averageMatrix] = estimateMUSIC(ura, rx_xB_jamsig_noise, noise, carrierFreq, ...
    averageMatrix, i, azimuth_range, elevation_range);
 fprintf("Given DoA: \t%.2f \t%.2f \n", doa(1,1), doa(2,1))
 doa_NaN = isnan(doas(1,1)) || isnan(doas(2,1));
@@ -106,7 +109,7 @@ switch true
    otherwise
        % Perform MVDR Beamforming
        disp('Running MVDR Script...');
-       [signal, weights] = beamformerMVDR(ura, rx_xB_jamsig, noise, doas, t, carrierFreq);
+       [signal, weights] = beamformerMVDR(ura, rx_xB_jamsig_noise, noise, doas, t, carrierFreq);
        after_MVDR_1noise = snr(signal, noise(:,1));
        disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
 end
