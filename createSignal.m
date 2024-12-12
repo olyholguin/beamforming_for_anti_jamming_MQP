@@ -4,7 +4,7 @@ function [ura, x, noise] = createSignal(t, carrierFreq, colSp, rowSp, noisePwr, 
 
 s = zeros(size(t));  
 s = s(:);                       % Signal in column vector
-s(201:205) = s(201:205) + pulseHeight;    % Define the pulse
+s(101:205) = s(101:205) + pulseHeight;    % Define the pulse
 wavelength = physconst('LightSpeed')/carrierFreq; % wavelength is in meters
 rowSpacing = rowSp * wavelength;
 colSpacing = colSp * wavelength;

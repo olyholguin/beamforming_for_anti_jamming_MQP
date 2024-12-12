@@ -5,7 +5,8 @@ mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
    'TrainingInputPort',true,'WeightsOutputPort',true);
 rxSignal = x + noise;
 [yURA, w]= mvdrbeamformer(rxSignal, noise);
-figure(4);
+
+figure;
 plot(t,abs(yURA));
 axis tight;
 title('Output of MVDR Beamformer for URA');
@@ -13,6 +14,7 @@ xlabel('Time (s)');
 ylabel('Magnitude (V)');
 xlim([0 0.3])
 ylim([0 0.3])
+
 % figure(5);
 % p = pattern(ura, carrierFreq, -180:180, 0 ,'Weights', w,'Type','powerdb',...
 %     'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...

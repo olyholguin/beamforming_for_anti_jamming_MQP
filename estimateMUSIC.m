@@ -1,6 +1,13 @@
 function [doas, averageMatrix] = estimateMUSIC(ura, x, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range)
 % estimateMUSIC takes in ura and noise and outputs doa array
 
+% azimuth_range(1) = 180-azimuth_range(1);
+% azimuth_range(2) = 180-azimuth_range(2);
+% a_low = azimuth_range(2);
+% a_high = azimuth_range(1);
+% e_low = elevation_range(1);
+% e_high = elevation_range(2);
+
 a_low = azimuth_range(1);
 a_high = azimuth_range(2);
 e_low = elevation_range(1);
