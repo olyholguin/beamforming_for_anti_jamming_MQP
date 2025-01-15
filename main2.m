@@ -33,9 +33,14 @@ collector = phased.Collector('Sensor',ura,...
    'OperatingFrequency',carrierFreq);
 amplifier = phased.ReceiverPreamp('EnableInputPort',true);
 
+% Original locations of A, B and Jammer
 targetlocB = [100 ; 0; 0];
 targetlocA = [0 ; 0; 0];
 jammerloc = [50; 50; 0];
+% Switched locations of B and Jammer for testing
+% targetlocB = [50 ; 50; 0];
+% targetlocA = [0 ; 0; 0];
+% jammerloc = [100; 0; 0];
 zeroVelocity = [0;0;0];
 
 [~,pathAtoB] = rangeangle(targetlocB, targetlocA); % Replace tgtang with doa
@@ -177,10 +182,10 @@ if(doa_NaN == 1)
   return;
 end
 % Given DOA angles cancel out, so we reuse pathAtoB instead of pathBtoA
-percent_error_1_1 = abs(doas(1,1) - pathAtoB(1,1)) / azimuth_span * 100;
-percent_error_2_1 = abs(doas(2,1) - pathAtoB(2,1)) / elevation_span * 100;
-% percent_error_1_1 = abs(doas(1,1) - pathBtoA(1,1)) / azimuth_span * 100;
-% percent_error_2_1 = abs(doas(2,1) - pathBtoA(2,1)) / elevation_span * 100;
+% percent_error_1_1 = abs(doas(1,1) - pathAtoB(1,1)) / azimuth_span * 100;
+% percent_error_2_1 = abs(doas(2,1) - pathAtoB(2,1)) / elevation_span * 100;
+percent_error_1_1 = abs(doas(1,1) - pathBtoA(1,1)) / azimuth_span * 100;
+percent_error_2_1 = abs(doas(2,1) - pathBtoA(2,1)) / elevation_span * 100;
 total_percent_error = (percent_error_1_1 + percent_error_2_1) / 2;
 % Display the result
 disp(['Azimuth Angle Percent Error: ', num2str(percent_error_1_1), '%']);
