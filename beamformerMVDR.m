@@ -1,4 +1,4 @@
-function [yURA, w] = beamformerMVDR(ura, x, noise, doas, t, carrierFreq)
+function [yURA, w] = beamformerMVDR(ura, x, noise, doas, t, carrierFreq, propagation_path)
 % beamformerMVDR takes in URA and DoA and outputs signal and weights
 mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
    'Direction',doas,'OperatingFrequency',carrierFreq,...
@@ -9,7 +9,7 @@ rxSignal = x + noise;
 figure;
 plot(t,abs(yURA));
 axis tight;
-title('Output of MVDR Beamformer for URA');
+title(strcat('Output of MVDR Beamformer: ', propagation_path));
 xlabel('Time (s)');
 ylabel('Magnitude (V)');
 xlim([0 0.3])

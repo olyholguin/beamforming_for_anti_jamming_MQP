@@ -1,4 +1,4 @@
-function [ura, x, noise] = createSignal(t, carrierFreq, colSp, rowSp, noisePwr, doa, i, pulseHeight)
+function [ura, x] = createSignal(t, carrierFreq, colSp, rowSp, i, pulseHeight)
 % createSignal creates a rectangular pulse using carrierFreq, colSp, rowSp 
 % function outputs URA and noise
 
@@ -16,7 +16,5 @@ ura_high = carrierFreq + 10e6;
 ura.Element.FrequencyRange = [ura_low ura_high];
 
 x = s;
-rs = RandStream.create('mt19937ar', 'Seed', 2007+i);
-noise = sqrt(noisePwr/2)*(randn(rs,size(x))+1i*randn(rs,size(x)));
 
 end
