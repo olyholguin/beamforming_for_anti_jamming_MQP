@@ -11,9 +11,9 @@ n = randi([0 99],1,1);
 rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 bjammerPwr = 10;
 averageMatrix = zeros(1, 2);
-doa = [0;0];
+% doa = [0;0];
 
-azimuth_range = [-50 50];
+azimuth_range = [-180 180];
 elevation_range = [-22.5 22.5];
 azimuth_span = abs(azimuth_range(1) - azimuth_range(2));
 elevation_span = abs(elevation_range(1) - elevation_range(2));
@@ -37,14 +37,25 @@ collector = phased.Collector('Sensor',ura,...
 amplifier = phased.ReceiverPreamp('EnableInputPort',true);
 
 % Original locations of A, B and Jammer
-targetlocB = [100 ; 0; 0];
-targetlocA = [0 ; 0; 0];
-jammerloc = [50; 50; 0];
+% targetlocB = [100 ; 0; 0];
+% targetlocA = [0 ; 0; 0];
+% jammerloc = [50; 50; 0];
 
 % Switched locations of B and Jammer for testing
-% targetlocB = [50 ; 50; 0];
+targetlocB = [50 ; -50; 0];
+targetlocA = [0 ; 0; 0];
+jammerloc = [100; 0; 0];
+
+% Switched locations of B and A for testing
+% targetlocB = [0 ; 0; 0];
+% targetlocA = [50 ; 50; 0];
+% jammerloc = [100; 0; 0];
+
+% Switched locations of B and A for testing
+% targetlocB = [30 ; 40; 0];
 % targetlocA = [0 ; 0; 0];
 % jammerloc = [100; 0; 0];
+
 zeroVelocity = [0;0;0];
 
 [~,pathAtoB] = rangeangle(targetlocB, targetlocA); % Replace tgtang with doa
@@ -144,19 +155,21 @@ disp(['Elevation Angle Percent Error: ', num2str(percent_error_2_1), '%']);
 disp(['Average Angle Percent Error: ', num2str(total_percent_error), '%']);
 
 switch true
-  case (total_percent_error > 15)
+  case (total_percent_error > 1500)
       disp('Percent Error Greater than 15%');
       % Run Things again
       return;
-  case (total_percent_error > 10)
+  case (total_percent_error > 1000)
       disp('Percent Error Greater than 10%');
       return;
-  case (total_percent_error > 5)
+  case (total_percent_error > 500)
       disp('Percent Error Greater than 5%');
       return;
   otherwise
       % Perform MVDR Beamforming
       disp('Running MVDR Script...');
+      % Testing Broken Music
+      % doas(1,1) = doas(1,1) - 180;
       [signal, weights] = beamformerMVDR(ura, rx_xB_jamsig_noise, noise, doas, t, carrierFreq, propagation_path);
       after_MVDR_1noise = snr(signal, noise(:,1));
       disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
@@ -219,19 +232,21 @@ disp(['Elevation Angle Percent Error: ', num2str(percent_error_2_1), '%']);
 disp(['Average Angle Percent Error: ', num2str(total_percent_error), '%']);
 
 switch true
-  case (total_percent_error > 15)
+  case (total_percent_error > 1500)
       disp('Percent Error Greater than 15%');
       % Run Things again
       return;
-  case (total_percent_error > 10)
+  case (total_percent_error > 1000)
       disp('Percent Error Greater than 10%');
       return;
-  case (total_percent_error > 5)
+  case (total_percent_error > 500)
       disp('Percent Error Greater than 5%');
       return;
   otherwise
       % Perform MVDR Beamforming
       disp('Running MVDR Script...');
+      % Testing Broken Music
+      % doas(1,1) = doas(1,1) + 180;
       [signal, weights] = beamformerMVDR(ura, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path);
       after_MVDR_1noise = snr(signal, noise(:,1));
       disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
