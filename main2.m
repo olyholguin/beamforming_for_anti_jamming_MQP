@@ -37,14 +37,14 @@ collector = phased.Collector('Sensor',ura,...
 amplifier = phased.ReceiverPreamp('EnableInputPort',true);
 
 % Original locations of A, B and Jammer
-% targetlocB = [100 ; 0; 0];
-% targetlocA = [0 ; 0; 0];
-% jammerloc = [50; 50; 0];
+targetlocB = [100 ; 0; 0];
+targetlocA = [0 ; 0; 0];
+jammerloc = [50; 50; 0];
 
 % Switched locations of B and Jammer for testing
-targetlocB = [50 ; -50; 0];
-targetlocA = [0 ; 0; 0];
-jammerloc = [100; 0; 0];
+% targetlocB = [50 ; -50; 0];
+% targetlocA = [0 ; 0; 0];
+% jammerloc = [100; 0; 0];
 
 % Switched locations of B and A for testing
 % targetlocB = [0 ; 0; 0];
@@ -58,11 +58,11 @@ jammerloc = [100; 0; 0];
 
 zeroVelocity = [0;0;0];
 
-[~,pathAtoB] = rangeangle(targetlocB, targetlocA); % Replace tgtang with doa
-[~,pathBtoA] = rangeangle(targetlocA, targetlocB);
+[~,pathAtoB] = rangeangle(targetlocA, targetlocB); % B is looking for A
+[~,pathBtoA] = rangeangle(targetlocB, targetlocA); % B is looking for B
 % [~,jamang] = rangeangle(jammerloc);
-[~,pathJtoA] = rangeangle(targetlocA, jammerloc); % Path between jammer and target A
-[~,pathJtoB] = rangeangle(targetlocB, jammerloc); % Path between jammer and target B
+[~,pathJtoA] = rangeangle(jammerloc, targetlocA); % A is looking for jammer
+[~,pathJtoB] = rangeangle(jammerloc, targetlocB); % B is looking for jammer
 
 %% A to B
 propagation_path = " A to B";
