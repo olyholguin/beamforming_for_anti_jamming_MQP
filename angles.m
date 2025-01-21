@@ -4,7 +4,7 @@
 f1 = 450.0;
 f2 = 600.0;
 doa1 = [-37;0];
-doa2 = [-180;20];
+doa2 = [17;20];
 fc = 150e6;
 c = physconst('LightSpeed');
 lam = c/fc;
@@ -20,6 +20,6 @@ estimator = phased.MUSICEstimator2D('SensorArray',array,...
     'OperatingFrequency',fc,...
     'NumSignalsSource','Property',...
     'DOAOutputPort',true,'NumSignals',2,...
-    'AzimuthScanAngles',-50:.5:50,...
+    'AzimuthScanAngles',-50:.5:50,... % When changed -50:50 to -180:180 the DOA values change
     'ElevationScanAngles',-30:.5:30);
 [~,doas] = estimator(x + noise)

@@ -13,7 +13,7 @@ bjammerPwr = 10;
 averageMatrix = zeros(1, 2);
 % doa = [0;0];
 
-azimuth_range = [-180 180];
+azimuth_range = [-50 50];
 elevation_range = [-22.5 22.5];
 azimuth_span = abs(azimuth_range(1) - azimuth_range(2));
 elevation_span = abs(elevation_range(1) - elevation_range(2));
