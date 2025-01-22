@@ -6,14 +6,14 @@ mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
 rxSignal = x + noise;
 [yURA, w]= mvdrbeamformer(rxSignal, noise);
 
-figure;
-plot(t,abs(yURA));
-axis tight;
-title(strcat('Output of MVDR Beamformer: ', propagation_path));
-xlabel('Time (s)');
-ylabel('Magnitude (V)');
-xlim([0 0.3])
-ylim([0 0.3])
+% figure;
+% plot(t,abs(yURA));
+% axis tight;
+% title(strcat('Output of MVDR Beamformer: ', propagation_path));
+% xlabel('Time (s)');
+% ylabel('Magnitude (V)');
+% xlim([0 0.3])
+% ylim([0 0.3])
 
 % figure(5);
 % p = pattern(ura, carrierFreq, -180:180, 0 ,'Weights', w,'Type','powerdb',...
