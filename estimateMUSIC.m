@@ -30,8 +30,6 @@ estimator2D = phased.MUSICEstimator2D('SensorArray',ura,...
 
 [~,doas] = estimator2D(x + noise);
 
-
-
 % figure;
 % plotSpectrum(estimator2D);
 % title("URA 2x2 with 2D MUSIC Estimator");
