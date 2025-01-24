@@ -12,6 +12,7 @@ rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 bjammerPwr = 10;
 averageMatrix = zeros(1, 2);
 i = 1;
+b_moves_vert = zeros(780,3);
 
 azimuth_range = [-90 90];
 elevation_range = [-22.5 22.5];
@@ -30,6 +31,21 @@ propagation_path = " B to A";
 
 % Initialize Phased Objects
 [transmitter, radiator, targetchannel, amplifier] = initPhasedObjs(ura, carrierFreq, samplingFreq);
+
+test_angles = [-120 -100 -80 -60 -40 -20 0 20 40 60 80 100 120];
+% test_angles = [0 20 40 60 80 100];
+% for j_location = test_angles
+
+% Original locations of A, B and Jammer
+targetlocB = [100; 0; 0];
+targetlocA = [0; 0; 0];
+% jammerloc = [50; j_location; 0];
+% jammerloc = [j_location; 50; 0];
+% jammerloc = [j_location; -50; 0];
+jammerloc = [50;50;0];
+
+%Plot senario
+plotLoc(targetlocA,targetlocB,jammerloc);
 
 % Calculate Expected DoAs
 [pathAtoB, pathBtoA, pathJtoA, pathJtoB] = calculateExpected(targetlocA, targetlocB, jammerloc);
@@ -70,3 +86,5 @@ disp('Running MVDR Script...');
 [signal, weights] = beamformerMVDR(ura, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path);
 after_MVDR_1noise = snr(signal, noise(:,1));
 disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
+
+% end
