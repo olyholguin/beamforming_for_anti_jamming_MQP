@@ -10,12 +10,12 @@ hold on;
 plot(targetlocB(1),targetlocB(2),'.', 'markersize',20);
 hold on; 
 plot(jammerloc(1),jammerloc(2),'.', 'markersize',20);
-title("Senario Locations");
+title("Scenario Locations");
 yline(0);
 xline(0);
 xlabel('X (Meters)') ;
 ylabel('Y (Meters)') ;
-legend('Reciver','Transmitter', 'Jammer');
+legend('Receiver','Transmitter', 'Jammer');
 xlim([-10 130]);
 ylim([-130 130]);
 grid on 

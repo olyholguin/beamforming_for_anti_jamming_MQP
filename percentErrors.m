@@ -1,4 +1,4 @@
-function [runMVDR] = percentErrors(doas, pathBtoA, azimuth_span, elevation_span)
+function [runMVDR, total_percent_error] = percentErrors(doas, pathBtoA, azimuth_span, elevation_span)
 
 % Calculates the percent error of the expected and measured DoAs
 % Outputs whether or not to perform beamforming
@@ -15,14 +15,14 @@ disp(['Average Angle Percent Error: ', num2str(total_percent_error), '%']);
 
 runMVDR = false;
 switch true
-    case (total_percent_error > 15)
+    case (total_percent_error > 1500)
         disp('Percent Error Greater than 15%');
         % Run Things again
         return;
-    case (total_percent_error > 10)
+    case (total_percent_error > 1000)
         disp('Percent Error Greater than 10%');
         return;
-    case (total_percent_error > 5)
+    case (total_percent_error > 500)
         disp('Percent Error Greater than 5%');
         return;
     otherwise

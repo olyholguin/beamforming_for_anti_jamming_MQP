@@ -12,7 +12,16 @@ rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 bjammerPwr = 10;
 averageMatrix = zeros(1, 2);
 i = 1;
-b_moves_vert = zeros(780,3);
+show_plots = true;
+sweep_loc = 'b'; % a, b, j, j_up, j_down
+if strcmp(sweep_loc,'b') || strcmp(sweep_loc,'a') || strcmp(sweep_loc,'j')
+    sweep = zeros(780,3);
+    locations = -120:20:120;
+else
+   sweep = zeros(360,3);
+   locations = 0:20:100;
+end
+colors = sweep;
 
 azimuth_range = [-90 90];
 elevation_range = [-22.5 22.5];
@@ -21,7 +30,7 @@ elevation_span = abs(elevation_range(1) - elevation_range(2));
 
 targetlocB =    [100; 0; 0];
 targetlocA =    [0; 0; 0];
-jammerloc =     [60; -50; 0];
+jammerloc =     [50; -50; 0];
 zeroVelocity =  [0; 0; 0];
 
 propagation_path = " B to A";
@@ -32,59 +41,117 @@ propagation_path = " B to A";
 % Initialize Phased Objects
 [transmitter, radiator, targetchannel, amplifier] = initPhasedObjs(ura, carrierFreq, samplingFreq);
 
-test_angles = [-120 -100 -80 -60 -40 -20 0 20 40 60 80 100 120];
-% test_angles = [0 20 40 60 80 100];
-% for j_location = test_angles
+jamMatrix = [0.01 0.1 1 10 100 1000];
+iteration = 1;
+locations = 0;
+jamMatrix = 0.1;
 
-% Original locations of A, B and Jammer
-targetlocB = [100; 0; 0];
-targetlocA = [0; 0; 0];
-% jammerloc = [50; j_location; 0];
-% jammerloc = [j_location; 50; 0];
-% jammerloc = [j_location; -50; 0];
-jammerloc = [50;50;0];
+for loc = locations
+    for jamPwr = jamMatrix
+        for i = 1:1:1
+            bjammerPwr = jamPwr;
 
-%Plot senario
-plotLoc(targetlocA,targetlocB,jammerloc);
+            % Locations of A, B and Jammer
+            targetlocB = [100; 0; 0];
+            targetlocA = [0; 0; 0];
+            jammerloc = [50;50;0];
+            if strcmp(sweep_loc, 'b')
+                targetlocB = [100; loc; 0];
+                title_name = 'Mobile Transmitter';
+                y_axis = 'Tx Y Coordinate';
+            elseif strcmp(sweep_loc, 'a')
+                targetlocA = [0; loc; 0];
+                title_name = 'Mobile Receiver';
+                y_axis = 'Rx Y Coordinate';
+            elseif strcmp(sweep_loc, 'j')
+                jammerloc = [50; loc; 0];
+                title_name = 'Mobile Jammer';
+                y_axis = 'Jammer Y Coordinate';
+            elseif strcmp(sweep_loc, 'j_up')
+                jammerloc = [loc; 50; 0];
+                title_name = 'Mobile Jammer';
+                y_axis = 'Jammer X Coordinate';
+            else
+                jammerloc = [loc; -50; 0];
+                title_name = 'Mobile Jammer';
+                y_axis = 'Jammer X Coordinate';
+            end
 
-% Calculate Expected DoAs
-[pathAtoB, pathBtoA, pathJtoA, pathJtoB] = calculateExpected(targetlocA, targetlocB, jammerloc);
+            %Plot senario
+            if (show_plots)
+                plotLoc(targetlocA,targetlocB,jammerloc);
+            end
 
-% Transmit signal from B to A
-[rx_xA, noise] = propagateSignal(x, pathBtoA, targetlocB, targetlocA, zeroVelocity, carrierFreq, noisePwr, rs, transmitter, radiator, targetchannel, ura);
+            % Calculate Expected DoAs
+            [pathAtoB, pathBtoA, pathJtoA, pathJtoB] = calculateExpected(targetlocA, targetlocB, jammerloc);
 
-% Initialize Jammer values
-[jamsig] = startJammer(bjammerPwr, samplingFreq, carrierFreq, ura, jammerloc, targetlocA, zeroVelocity, pathJtoA);
+            % Transmit signal from B to A
+            [rx_xA, noise] = propagateSignal(x, pathBtoA, targetlocB, targetlocA, zeroVelocity, carrierFreq, noisePwr, rs, transmitter, radiator, targetchannel, ura);
 
-rx_xA_jamsig = rx_xA + jamsig;
-rx_xA_jamsig_noise = rx_xA_jamsig + noise; 
+            % Initialize Jammer values
+            [jamsig] = startJammer(bjammerPwr, samplingFreq, carrierFreq, ura, jammerloc, targetlocA, zeroVelocity, pathJtoA);
 
-% Command Line Output
-disp(" ")
-disp("Transmitting B to A");
-disp(strcat("B (Tx) location: ",num2str(targetlocB(1,1)),", ",num2str(targetlocB(2,1)),", ",num2str(targetlocB(3,1))))
-disp(strcat("A (Rx) location: ",num2str(targetlocA(1,1)),", ",num2str(targetlocA(2,1)),", ",num2str(targetlocA(3,1))))
-disp(strcat("Jammer location: ",num2str(jammerloc(1,1)),", ",num2str(jammerloc(2,1)),", ",num2str(jammerloc(3,1))))
-before_MVDR_1noise = snr(rx_xA_jamsig, noise);
-disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
+            rx_xA_jamsig = rx_xA + jamsig;
+            rx_xA_jamsig_noise = rx_xA_jamsig + noise;
 
-[doas, averageMatrix] = estimateMUSIC(ura, rx_xA_jamsig_noise, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
+            % Command Line Output
+            disp(" ")
+            disp("Transmitting B to A");
+            disp(strcat("B (Tx) location: ",num2str(targetlocB(1,1)),", ",num2str(targetlocB(2,1)),", ",num2str(targetlocB(3,1))))
+            disp(strcat("A (Rx) location: ",num2str(targetlocA(1,1)),", ",num2str(targetlocA(2,1)),", ",num2str(targetlocA(3,1))))
+            disp(strcat("Jammer location: ",num2str(jammerloc(1,1)),", ",num2str(jammerloc(2,1)),", ",num2str(jammerloc(3,1))))
+            before_MVDR_1noise = snr(rx_xA_jamsig, noise);
+            disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
 
-fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
+            [doas, averageMatrix] = estimateMUSIC(ura, rx_xA_jamsig_noise, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
 
-checkNaN(doas);
+            fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
 
-[runMVDR] = percentErrors(doas, pathBtoA, azimuth_span, elevation_span);
+            checkNaN(doas);
 
-if (~runMVDR)
-   msg = 'DoA Percent Error was too high';
-   error(msg)
+            [runMVDR, total_percent_error] = percentErrors(doas, pathBtoA, azimuth_span, elevation_span);
+
+            if (~runMVDR)
+                msg = 'DoA Percent Error was too high';
+                error(msg)
+            end
+
+            % Perform MVDR Beamforming
+            disp('Running MVDR Script...');
+            [signal, weights] = beamformerMVDR(ura, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path, show_plots);
+            after_MVDR_1noise = snr(signal, noise(:,1));
+            disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
+
+            sweep(iteration,1) = loc;
+            sweep(iteration,2) = bjammerPwr;
+            sweep(iteration,3) = total_percent_error;
+
+            if bjammerPwr == 0.01
+                colors(iteration,:) = [1 0 0];
+            elseif bjammerPwr == 0.1
+                colors(iteration,:) = [0 1 0];
+            elseif bjammerPwr == 1
+                colors(iteration,:) = [0 0 1];
+            elseif bjammerPwr == 10
+                colors(iteration,:) = [1 0 1];
+            elseif bjammerPwr == 100
+                colors(iteration,:) = [1 1 0];
+            else
+                colors(iteration,:) = [0 1 1];
+            end
+            iteration = iteration + 1;
+        end
+    end
 end
 
-% Perform MVDR Beamforming
-disp('Running MVDR Script...');
-[signal, weights] = beamformerMVDR(ura, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path);
-after_MVDR_1noise = snr(signal, noise(:,1));
-disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
-
-% end
+% figure;
+% scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
+% set(gca,'xscale','log')
+% xlabel('Percent Error')
+% subtitle(strcat('Average Percent Error:', {' '}, num2str(mean(sweep(:,3)))))
+% ylabel(y_axis)
+% title(title_name)
+% % legend('Jammer Power 0.01', 'Jammer Power 0.1', 'Jammer Power 1', ...
+% %        'Jammer Power 10', 'Jammer Power 100', 'Jammer Power 1000')
+% ylim([min(sweep(:,1))-10 max(sweep(:,1))+10])
+% yticks(locations)
