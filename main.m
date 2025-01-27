@@ -12,7 +12,7 @@ rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 bjammerPwr = 10;
 averageMatrix = zeros(1, 2);
 i = 1;
-show_plots = true;
+show_plots = false;
 sweep_loc = 'b'; % a, b, j, j_up, j_down
 if strcmp(sweep_loc,'b') || strcmp(sweep_loc,'a') || strcmp(sweep_loc,'j')
     sweep = zeros(780,3);
@@ -43,12 +43,12 @@ propagation_path = " B to A";
 
 jamMatrix = [0.01 0.1 1 10 100 1000];
 iteration = 1;
-locations = 0;
-jamMatrix = 0.1;
+% locations = 0;
+% jamMatrix = 0.1;
 
 for loc = locations
     for jamPwr = jamMatrix
-        for i = 1:1:1
+        for i = 1:1:10
             bjammerPwr = jamPwr;
 
             % Locations of A, B and Jammer
@@ -127,31 +127,31 @@ for loc = locations
             sweep(iteration,3) = total_percent_error;
 
             if bjammerPwr == 0.01
-                colors(iteration,:) = [1 0 0];
+                colors(iteration,:) = [0.039 0.58 0.039];
             elseif bjammerPwr == 0.1
-                colors(iteration,:) = [0 1 0];
+                colors(iteration,:) = [0.098 0.949 0.098];
             elseif bjammerPwr == 1
-                colors(iteration,:) = [0 0 1];
+                colors(iteration,:) = [0.929 0.969 0.129];
             elseif bjammerPwr == 10
-                colors(iteration,:) = [1 0 1];
+                colors(iteration,:) = [1 0.651 0];
             elseif bjammerPwr == 100
-                colors(iteration,:) = [1 1 0];
+                colors(iteration,:) = [1 0 0];
             else
-                colors(iteration,:) = [0 1 1];
+                colors(iteration,:) = [0.6 0.051 0];
             end
             iteration = iteration + 1;
         end
     end
 end
 
-% figure;
-% scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
+figure;
+scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
 % set(gca,'xscale','log')
-% xlabel('Percent Error')
-% subtitle(strcat('Average Percent Error:', {' '}, num2str(mean(sweep(:,3)))))
-% ylabel(y_axis)
-% title(title_name)
-% % legend('Jammer Power 0.01', 'Jammer Power 0.1', 'Jammer Power 1', ...
-% %        'Jammer Power 10', 'Jammer Power 100', 'Jammer Power 1000')
-% ylim([min(sweep(:,1))-10 max(sweep(:,1))+10])
-% yticks(locations)
+xlabel('Percent Error')
+subtitle(strcat('Average Percent Error:', {' '}, num2str(mean(sweep(:,3)))))
+ylabel(y_axis)
+title(title_name)
+% legend('Jammer Power 0.01', 'Jammer Power 0.1', 'Jammer Power 1', ...
+%        'Jammer Power 10', 'Jammer Power 100', 'Jammer Power 1000')
+ylim([min(sweep(:,1))-10 max(sweep(:,1))+10])
+yticks(locations)
