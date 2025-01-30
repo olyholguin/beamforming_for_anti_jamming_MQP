@@ -7,7 +7,7 @@ collector = phased.Collector('Sensor',ura,'OperatingFrequency',carrierFreq);
 
 jamsig = jammer();
 % Propagate the jamming signal to the array
-jamsig = jammerchannel(jamsig,jammerloc,targetlocA,zeroVelocity,zeroVelocity);
+jamsig = jammerchannel(jamsig,jammerloc,targetlocA,[-1; -1; 0],zeroVelocity);
 % Collect the jamming signal
 jamsig = collector(jamsig,pathJtoA);
 
