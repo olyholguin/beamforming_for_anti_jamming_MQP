@@ -43,12 +43,13 @@ propagation_path = " B to A";
 
 jamMatrix = [0.01 0.1 1 10 100 1000];
 iteration = 1;
-% locations = 0;
-% jamMatrix = 0.1;
+locations = 0;
+jamMatrix = 10;
+weights = ones(4,1);
 
 for loc = locations
     for jamPwr = jamMatrix
-        for i = 1:1:10
+        for i = 1:1:2
             bjammerPwr = jamPwr;
 
             % Locations of A, B and Jammer
@@ -86,7 +87,11 @@ for loc = locations
             [pathAtoB, pathBtoA, pathJtoA, pathJtoB] = calculateExpected(targetlocA, targetlocB, jammerloc);
 
             % Transmit signal from B to A
-            [rx_xA, noise] = propagateSignal(x, pathBtoA, targetlocB, targetlocA, zeroVelocity, carrierFreq, noisePwr, rs, transmitter, radiator, targetchannel, ura);
+            disp("weight values " + weights);
+            w1 = weights(1:2);
+            w2 = weights(3:4);
+            uraNewW = phased.URA([2,2],'Taper',[w1,w2], 'ElementSpacing', [1.19916 1.49895]);
+            [rx_xA, noise] = propagateSignal(x, pathBtoA, targetlocB, targetlocA, zeroVelocity, carrierFreq, noisePwr, rs, transmitter, radiator, targetchannel, uraNewW);
 
             % Initialize Jammer values
             [jamsig] = startJammer(bjammerPwr, samplingFreq, carrierFreq, ura, jammerloc, targetlocA, zeroVelocity, pathJtoA);
@@ -103,7 +108,7 @@ for loc = locations
             before_MVDR_1noise = snr(rx_xA_jamsig, noise);
             disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
 
-            [doas, averageMatrix] = estimateMUSIC(ura, rx_xA_jamsig_noise, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
+            [doas, averageMatrix] = estimateMUSIC(uraNewW, rx_xA_jamsig_noise, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
 
             fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
 
@@ -118,7 +123,7 @@ for loc = locations
 
             % Perform MVDR Beamforming
             disp('Running MVDR Script...');
-            [signal, weights] = beamformerMVDR(ura, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path, show_plots);
+            [signal, weights] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path, show_plots);
             after_MVDR_1noise = snr(signal, noise(:,1));
             disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
 
@@ -144,14 +149,14 @@ for loc = locations
     end
 end
 
-figure;
-scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
-% set(gca,'xscale','log')
-xlabel('Percent Error')
-subtitle(strcat('Average Percent Error:', {' '}, num2str(mean(sweep(:,3)))))
-ylabel(y_axis)
-title(title_name)
-% legend('Jammer Power 0.01', 'Jammer Power 0.1', 'Jammer Power 1', ...
-%        'Jammer Power 10', 'Jammer Power 100', 'Jammer Power 1000')
-ylim([min(sweep(:,1))-10 max(sweep(:,1))+10])
-yticks(locations)
+% figure;
+% scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
+% % set(gca,'xscale','log')
+% xlabel('Percent Error')
+% subtitle(strcat('Average Percent Error:', {' '}, num2str(mean(sweep(:,3)))))
+% ylabel(y_axis)
+% title(title_name)
+% % legend('Jammer Power 0.01', 'Jammer Power 0.1', 'Jammer Power 1', ...
+% %        'Jammer Power 10', 'Jammer Power 100', 'Jammer Power 1000')
+% ylim([min(sweep(:,1))-10 max(sweep(:,1))+10])
+% yticks(locations)
