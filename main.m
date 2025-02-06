@@ -49,7 +49,7 @@ weights = ones(4,1);
 
 for loc = locations
     for jamPwr = jamMatrix
-        for i = 1:1:50
+        for i = 1:1:1
             bjammerPwr = jamPwr;
 
             % Locations of A, B and Jammer
@@ -101,11 +101,12 @@ for loc = locations
 
             % % Command Line Output
             disp(" ")
-            % disp("Transmitting B to A");
-            % disp(strcat("B (Tx) location: ",num2str(targetlocB(1,1)),", ",num2str(targetlocB(2,1)),", ",num2str(targetlocB(3,1))))
-            % disp(strcat("A (Rx) location: ",num2str(targetlocA(1,1)),", ",num2str(targetlocA(2,1)),", ",num2str(targetlocA(3,1))))
-            % disp(strcat("Jammer location: ",num2str(jammerloc(1,1)),", ",num2str(jammerloc(2,1)),", ",num2str(jammerloc(3,1))))
-            before_MVDR_1noise = snr(rx_xA_jamsig, noise);
+            disp("Transmitting B to A");
+            disp(strcat("B (Tx) location: ",num2str(targetlocB(1,1)),", ",num2str(targetlocB(2,1)),", ",num2str(targetlocB(3,1))))
+            disp(strcat("A (Rx) location: ",num2str(targetlocA(1,1)),", ",num2str(targetlocA(2,1)),", ",num2str(targetlocA(3,1))))
+            disp(strcat("Jammer location: ",num2str(jammerloc(1,1)),", ",num2str(jammerloc(2,1)),", ",num2str(jammerloc(3,1))))
+            % before_MVDR_1noise = snr(rx_xA_jamsig, noise);
+            before_MVDR_1noise = snr(rx_xA, noise+jamsig);
             disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
 
             [doas, averageMatrix] = estimateMUSIC(uraNewW, rx_xA_jamsig_noise, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
@@ -122,10 +123,39 @@ for loc = locations
             end
 
             % Perform MVDR Beamforming
-            % disp('Running MVDR Script...');
+            disp('Running MVDR Script...');
             [signal, weights2] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path, show_plots);
+            
+            % figure;
+            % plot(abs(signal))
+
+            % figure;
+            % plot(abs(noise))
+
+            % signal_only = fftshift(fft(signal));
+            % % noise_fft = fftshift(fft(noise));
+            % 
+            % % figure;
+            % % plot(abs(signal_only))
+            % 
+            % % figure;
+            % % plot(abs(noise_fft))
+            % 
+            % signal_lowpass = lowpass(signal, 0.01);
+            % % figure;
+            % % plot(abs(signal_lowpass))
+            % 
+            % ugly = signal-signal_lowpass;
+
+            % figure;
+            % plot(abs(ugly))
+
             after_MVDR_1noise = snr(signal, noise(:,1));
             disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
+
+            % after_MVDR_1noise = snr(signal, ones(301,1));
+            % % after_MVDR_1noise = snr(signal_lowpass, ugly);
+            % disp("After MVDR SNR FFT: " + num2str(after_MVDR_1noise) + " dB");
 
             % sweep(iteration,1) = loc;
             % sweep(iteration,2) = bjammerPwr;
@@ -166,13 +196,13 @@ end
 % clf;
 
 
-figure;
-scatter(sweep(:,1), sweep(:,2),[], '*','b')
-hold on;
-scatter(sweep(:,1), sweep(:,3),[], 'o', 'r')
-legend('Before','After')
-xlabel("X and Y Coordinate of Jammer (Meters)")
-ylabel("SNR in dB")
+% figure;
+% scatter(sweep(:,1), sweep(:,2),[], '*','b')
+% hold on;
+% scatter(sweep(:,1), sweep(:,3),[], 'o', 'r')
+% legend('Before','After')
+% xlabel("X and Y Coordinate of Jammer (Meters)")
+% ylabel("SNR in dB")
 % scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
 % hold off;
 % scatter(sweep(:,1), sweep(:,2),[], '*','b')

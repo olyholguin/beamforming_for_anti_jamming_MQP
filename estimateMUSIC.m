@@ -19,7 +19,7 @@ estimator2D = phased.MUSICEstimator2D('SensorArray',ura,...
 % plotSpectrum(estimator2D);
 % title("URA 2x2 with 2D MUSIC Estimator");
 
-% fprintf("Measured DoA: \t%.2f \t%.2f \n", round(doas(1,1),2), round(doas(2,1),2))
+fprintf("Measured DoA: \t%.2f \t%.2f \n", round(doas(1,1),2), round(doas(2,1),2))
 averageMatrix(i, 1) = doas(1,1);
 averageMatrix(i, 2) = doas(2,1);
 
