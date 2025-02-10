@@ -4,8 +4,9 @@ function [yURA, w] = beamformerMVDR(ura, x, noise, doas, t, carrierFreq, propaga
 mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
     'Direction',doas,'OperatingFrequency',carrierFreq,...
     'TrainingInputPort',true,'WeightsOutputPort',true);
-rxSignal = x + noise;
-[yURA, w]= mvdrbeamformer(rxSignal, noise);
+% rxSignal = x + noise; 
+% [yURA, w]= mvdrbeamformer(rxSignal, noise);
+[yURA, w]= mvdrbeamformer(x, noise);
 
 if (show_plots)
     figure;
@@ -17,15 +18,15 @@ if (show_plots)
     xlim([0 0.3])
     ylim([0 0.3])
 
-    % figure;
+    figure;
+    p = pattern(ura, carrierFreq, -90:90, 0 ,'Weights', w,'Type','powerdb',...
+        'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
+        'CoordinateSystem','rectangular');
     % p = pattern(ura, carrierFreq, -90:90, 0 ,'Weights', w,'Type','powerdb',...
-    %     'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
-    %     'CoordinateSystem','rectangular');
-    % % p = pattern(ura, carrierFreq, -90:90, 0 ,'Weights', w,'Type','powerdb',...
-    % %     'PropagationSpeed',physconst('LightSpeed'),...
-    % %     'CoordinateSystem','polar');
-    % plot(p)
-    % title('Response Pattern at 0 Degrees Elevation');
+    %     'PropagationSpeed',physconst('LightSpeed'),...
+    %     'CoordinateSystem','polar');
+    plot(p)
+    title('Response Pattern at 0 Degrees Elevation');
 
     % figure;
     % polarpattern(p);

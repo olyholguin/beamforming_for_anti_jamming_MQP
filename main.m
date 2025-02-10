@@ -12,7 +12,7 @@ rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 bjammerPwr = 10;
 averageMatrix = zeros(1, 2);
 i = 1;
-show_plots = false;
+show_plots = true;
 sweep_loc = 'b'; % a, b, j, j_up, j_down
 if strcmp(sweep_loc,'b') || strcmp(sweep_loc,'a') || strcmp(sweep_loc,'j')
     sweep = zeros(50,3);
@@ -124,7 +124,9 @@ for loc = locations
 
             % Perform MVDR Beamforming
             disp('Running MVDR Script...');
-            [signal, weights2] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path, show_plots);
+            % [signal, weights2] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path, show_plots);
+            % Prof Tang Changes
+            [signal, weights2] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise+jamsig, doas, t, carrierFreq, propagation_path, show_plots);
             
             % figure;
             % plot(abs(signal))
