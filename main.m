@@ -152,6 +152,25 @@ for loc = locations
             % figure;
             % plot(abs(ugly))
 
+            %Power Calculation
+            received_signal = signal;
+            signal_power1 = rms(received_signal)^2;
+            % noise_power = var(received_signal - clean_signal); % If you have clean_signal
+            noise_region = received_signal(101:205); % Example: use a section where the signal is expected to be minimal
+            noise_power1 = var(noise_region);  % Variance of noise
+            snr_value_db1 = 10 * log10(signal_power1 / noise_power1);
+            disp("SNR After MVDR using Chat method 1: " + num2str(snr_value_db1) + " dB");
+            
+            %Using FFT for Frequency-Domain SNR
+            N = length(received_signal);
+            Y = fft(received_signal);
+            Pyy = abs(Y).^2 / N;  % Power Spectral Density (PSD)
+            signal_power2 = max(Pyy); % Assuming peak corresponds to signal
+            noise_power2 = mean(Pyy); % Approximate noise power
+            snr_value_db2 = 10 * log10(signal_power2 / noise_power2);
+            disp("SNR After MVDR using Chat method 2: " + num2str(snr_value_db2) + " dB");
+
+
             after_MVDR_1noise = snr(signal, noise(:,1));
             disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
 
