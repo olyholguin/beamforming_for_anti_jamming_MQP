@@ -12,7 +12,7 @@ rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 bjammerPwr = 10;
 averageMatrix = zeros(1, 2);
 i = 1;
-show_plots = true;
+show_plots = false;
 sweep_loc = 'b'; % a, b, j, j_up, j_down
 if strcmp(sweep_loc,'b') || strcmp(sweep_loc,'a') || strcmp(sweep_loc,'j')
     sweep = zeros(50,3);
@@ -105,13 +105,19 @@ for loc = locations
             disp(strcat("B (Tx) location: ",num2str(targetlocB(1,1)),", ",num2str(targetlocB(2,1)),", ",num2str(targetlocB(3,1))))
             disp(strcat("A (Rx) location: ",num2str(targetlocA(1,1)),", ",num2str(targetlocA(2,1)),", ",num2str(targetlocA(3,1))))
             disp(strcat("Jammer location: ",num2str(jammerloc(1,1)),", ",num2str(jammerloc(2,1)),", ",num2str(jammerloc(3,1))))
-            % before_MVDR_1noise = snr(rx_xA_jamsig, noise);
-            before_MVDR_1noise = snr(rx_xA, noise+jamsig);
-            disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
-
+            % before_MVDR_1noise = snr(rx_xA, noise+jamsig);
+            % disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
+            
+            rows_combined = (sum(rx_xA_jamsig_noise,2))./4;
+            signal_power0 = rms(rows_combined).^2;
+            noise_region0 = rx_xA_jamsig_noise(1:100);
+            noise_power0 = var(noise_region0);
+            snr_value_db0 = 10 * log10(signal_power0 / noise_power0);
+            disp("Before MVDR SNR: " + num2str(snr_value_db0) + " dB");
+            
             [doas, averageMatrix] = estimateMUSIC(uraNewW, rx_xA_jamsig_noise, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
 
-            % fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
+            fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
 
             checkNaN(doas);
 
@@ -124,66 +130,33 @@ for loc = locations
 
             % Perform MVDR Beamforming
             disp('Running MVDR Script...');
-            % [signal, weights2] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise, doas, t, carrierFreq, propagation_path, show_plots);
-            % Prof Tang Changes
             [signal, weights2] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise+jamsig, doas, t, carrierFreq, propagation_path, show_plots);
-            
-            % figure;
-            % plot(abs(signal))
 
-            % figure;
-            % plot(abs(noise))
+            % Power Calculation
+            signal_power = rms(signal)^2;
+            noise_region = signal(1:100); % Example: use a section where the signal is expected to be minimal
+            noise_power = var(noise_region);  % Variance of noise
+            snr_value_db = 10 * log10(signal_power / noise_power);
+            disp("After MVDR SNR (1:100)  : " + num2str(snr_value_db) + " dB");
 
-            % signal_only = fftshift(fft(signal));
-            % % noise_fft = fftshift(fft(noise));
-            % 
-            % % figure;
-            % % plot(abs(signal_only))
-            % 
-            % % figure;
-            % % plot(abs(noise_fft))
-            % 
-            % signal_lowpass = lowpass(signal, 0.01);
-            % % figure;
-            % % plot(abs(signal_lowpass))
-            % 
-            % ugly = signal-signal_lowpass;
+            noise_region2 = signal(101:205);
+            noise_power2 = var(noise_region2);
+            snr_value_db2 = 10 * log10(signal_power / noise_power2);
+            disp("After MVDR SNR (101:205): " + num2str(snr_value_db2) + " dB");
 
-            % figure;
-            % plot(abs(ugly))
+            noise_region3 = signal(206:301);
+            noise_power3 = var(noise_region3);
+            snr_value_db3 = 10 * log10(signal_power / noise_power3);
+            disp("After MVDR SNR (206:301): " + num2str(snr_value_db3) + " dB");
 
-            %Power Calculation
-            received_signal = signal;
-            signal_power1 = rms(received_signal)^2;
-            % noise_power = var(received_signal - clean_signal); % If you have clean_signal
-            noise_region = received_signal(101:205); % Example: use a section where the signal is expected to be minimal
-            noise_power1 = var(noise_region);  % Variance of noise
-            snr_value_db1 = 10 * log10(signal_power1 / noise_power1);
-            disp("SNR After MVDR using Chat method 1: " + num2str(snr_value_db1) + " dB");
-            
-            %Using FFT for Frequency-Domain SNR
-            N = length(received_signal);
-            Y = fft(received_signal);
-            Pyy = abs(Y).^2 / N;  % Power Spectral Density (PSD)
-            signal_power2 = max(Pyy); % Assuming peak corresponds to signal
-            noise_power2 = mean(Pyy); % Approximate noise power
-            snr_value_db2 = 10 * log10(signal_power2 / noise_power2);
-            disp("SNR After MVDR using Chat method 2: " + num2str(snr_value_db2) + " dB");
-
-
-            after_MVDR_1noise = snr(signal, noise(:,1));
-            disp("After MVDR SNR: " + num2str(after_MVDR_1noise) + " dB");
-
-            % after_MVDR_1noise = snr(signal, ones(301,1));
-            % % after_MVDR_1noise = snr(signal_lowpass, ugly);
-            % disp("After MVDR SNR FFT: " + num2str(after_MVDR_1noise) + " dB");
+            avg_after_snr = (snr_value_db+snr_value_db2+snr_value_db3)/3;
+            disp("Average After SNR: " + num2str(avg_after_snr) + " dB");
 
             % sweep(iteration,1) = loc;
             % sweep(iteration,2) = bjammerPwr;
             % sweep(iteration,3) = total_percent_error;
-            sweep(iteration, 1) = (51-i);
-            sweep(iteration,2) = before_MVDR_1noise;
-            sweep(iteration,3) = after_MVDR_1noise;
+            % sweep(iteration, 1) = (51-i);
+            % sweep(iteration,2) = before_MVDR_1noise;
             % sweep(iteration,3) = after_MVDR_1noise;
 
             if bjammerPwr == 0.01
@@ -211,11 +184,6 @@ for loc = locations
         end
     end
 end
-
-% load desiredSynthesizedAntenna;
-
-% clf;
-
 
 % figure;
 % scatter(sweep(:,1), sweep(:,2),[], '*','b')
