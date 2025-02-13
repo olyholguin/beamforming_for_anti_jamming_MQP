@@ -22,6 +22,8 @@ else
    locations = 0:20:100;
 end
 colors = sweep;
+n = length(locations);
+big_sweep = zeros(n,16);
 
 azimuth_range = [-90 90];
 elevation_range = [-22.5 22.5];
@@ -30,7 +32,7 @@ elevation_span = abs(elevation_range(1) - elevation_range(2));
 
 targetlocB =    [100; 0; 0];
 targetlocA =    [0; 0; 0];
-jammerloc =     [50; -50; 0];
+jammerloc =     [50; 50; 0];
 zeroVelocity =  [0; 0; 0];
 
 propagation_path = " B to A";
@@ -43,7 +45,7 @@ propagation_path = " B to A";
 
 jamMatrix = [0.01 0.1 1 10 100 1000];
 iteration = 1;
-locations = 0;
+% locations = 0;
 jamMatrix = 10;
 weights = ones(4,1);
 
@@ -53,9 +55,9 @@ for loc = locations
             bjammerPwr = jamPwr;
 
             % Locations of A, B and Jammer
-            targetlocB = [100; 0; 0];
-            targetlocA = [0; 0; 0];
-            jammerloc = [(51-i);(51-i);0];
+            % targetlocB = [100; 0; 0];
+            % targetlocA = [0; 0; 0];
+            % jammerloc = [(51-i);(51-i);0];
             if strcmp(sweep_loc, 'b')
                 targetlocB = [100; loc; 0];
                 title_name = 'Mobile Transmitter';
@@ -158,6 +160,22 @@ for loc = locations
             % sweep(iteration, 1) = (51-i);
             % sweep(iteration,2) = before_MVDR_1noise;
             % sweep(iteration,3) = after_MVDR_1noise;
+            big_sweep(iteration, 1) = targetlocB(1,1); % X
+            big_sweep(iteration, 2) = targetlocB(2,1); % Y
+            big_sweep(iteration, 3) = targetlocB(3,1); % Z
+
+            big_sweep(iteration, 4) = targetlocA(1,1);
+            big_sweep(iteration, 5) = targetlocA(2,1);
+            big_sweep(iteration, 6) = targetlocA(3,1);
+            
+            big_sweep(iteration, 7) = jammerloc(1,1);
+            big_sweep(iteration, 8) = jammerloc(2,1);
+            big_sweep(iteration, 9) = jammerloc(3,1);
+
+            big_sweep(iteration, 13) = signal_power0; % Signal power before MVDR
+            big_sweep(iteration, 14) = signal_power; % Signal power after MVDR
+            big_sweep(iteration, 15) = snr_value_db0; % SNR before MVDR
+            big_sweep(iteration, 16) = avg_after_snr; % SNR after MVDR
 
             if bjammerPwr == 0.01
                 colors(iteration,:) = [0.039 0.58 0.039];
@@ -184,6 +202,9 @@ for loc = locations
         end
     end
 end
+
+% Save matrix of data to csv file 
+ saveData(big_sweep, n);
 
 % figure;
 % scatter(sweep(:,1), sweep(:,2),[], '*','b')
