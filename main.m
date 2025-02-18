@@ -112,42 +112,56 @@ for loc = locations
             
             entire_before_signal = (sum(rx_xA_jamsig_noise,2))./4; % rows combined
             [snr_dB_before_1_100, signal_pwr_before_1_100] = calculateSNR(entire_before_signal, 1, 100);
-            disp("Before MVDR SNR fnc (1:100): " + num2str(snr_dB_before_1_100) + " dB");
+            disp("SNR of Signal from All Antennas Averaged (1:100): " + num2str(snr_dB_before_1_100) + " dB");
 
             [snr_dB_before_101_205, signal_pwr_before_101_205] = calculateSNR(entire_before_signal, 101, 205);
-            disp("Before MVDR SNR fnc (101:205): " + num2str(snr_dB_before_101_205) + " dB");
+            % disp("Before MVDR SNR fnc (101:205): " + num2str(snr_dB_before_101_205) + " dB");
 
             [snr_dB_before_206_301, signal_pwr_before_206_301] = calculateSNR(entire_before_signal, 206, 301);
-            disp("Before MVDR SNR fnc (206:301): " + num2str(snr_dB_before_206_301) + " dB");
+            % disp("Before MVDR SNR fnc (206:301): " + num2str(snr_dB_before_206_301) + " dB");
 
             avg_before_snr = (snr_dB_before_1_100 + snr_dB_before_101_205 + snr_dB_before_206_301)/3;
-            disp("Average Before SNR: " + num2str(avg_before_snr) + " dB");
+            % disp("Average Before SNR: " + num2str(avg_before_snr) + " dB");
+            
 
-            [snr1_1, ~] = calculateSNR(rx_xA_jamsig_noise(:,1), 1, 100);
-            disp("SNR Column 1, Region 1: " + num2str(snr1_1) + " dB");
-            [snr2_1, ~] = calculateSNR(rx_xA_jamsig_noise(:,2), 1, 100);
-            disp("SNR Column 2, Region 1: " + num2str(snr2_1) + " dB");
-            [snr3_1, ~] = calculateSNR(rx_xA_jamsig_noise(:,3), 1, 100);
-            disp("SNR Column 3, Region 1: " + num2str(snr3_1) + " dB");
-            [snr4_1, ~] = calculateSNR(rx_xA_jamsig_noise(:,4), 1, 100);
-            disp("SNR Column 4, Region 1: " + num2str(snr4_1) + " dB");
+            [snr1_1, signal_power1_1, noise_power1_1] = calculateSNR(rx_xA_jamsig_noise(:,1), 1, 100);
+            % disp("SNR Column 1, Region 1: " + num2str(snr1_1) + " dB");
+            [snr2_1, signal_power2_1, noise_power2_1] = calculateSNR(rx_xA_jamsig_noise(:,2), 1, 100);
+            % disp("SNR Column 2, Region 1: " + num2str(snr2_1) + " dB");
+            [snr3_1, signal_power3_1, noise_power3_1] = calculateSNR(rx_xA_jamsig_noise(:,3), 1, 100);
+            % disp("SNR Column 3, Region 1: " + num2str(snr3_1) + " dB");
+            [snr4_1, signal_power4_1, noise_power4_1] = calculateSNR(rx_xA_jamsig_noise(:,4), 1, 100);
+            % disp("SNR Column 4, Region 1: " + num2str(snr4_1) + " dB");
+            
+            
             snr1_1_linear = 10.^(snr1_1 / 10);
             snr2_1_linear = 10.^(snr2_1 / 10);
             snr3_1_linear = 10.^(snr3_1 / 10);
             snr4_1_linear = 10.^(snr4_1 / 10);
 
+            % Calculate the SNR, by taking snr of each antenna then
+            % linearizing it, then averaging the 4 snr's then converting
+            % back to dB
             avg_region1_linear = (snr1_1_linear+snr2_1_linear+snr3_1_linear+snr4_1_linear)/4;
             avg_region1_fixed = 10 * log10(avg_region1_linear);
-            disp("Average Region 1 Fixed: " + num2str(avg_region1_fixed) + " dB");
+            disp("SNR Calculated at Each Antenna Then Averaged in log scale (1:100): " + num2str((snr1_1+snr2_1+snr3_1+snr1_1)/4) + " dB");
+            disp("SNR Calculated at Each Antenna Then Linearized and Averaged (1:100): " + num2str(avg_region1_fixed) + " dB");
+
+            % Calculate the SNR, by taking the Average signal power and
+            % noise power, the plug into SNR Equation
+            signal_powertotal = signal_power1_1+ signal_power2_1+signal_power3_1+signal_power4_1;
+            noise_powertotal = noise_power1_1+ noise_power2_1+noise_power3_1+noise_power4_1;
+            snr_using_avg_powers = 10 * log10(signal_powertotal / noise_powertotal);
+            disp("SNR Calculated with Average Power Values (1:100): " + num2str(snr_using_avg_powers) + " dB");
 
             [snr1_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,1), 101, 205);
-            disp("SNR Column 1, Region 2: " + num2str(snr1_2) + " dB");
+            % disp("SNR Column 1, Region 2: " + num2str(snr1_2) + " dB");
             [snr2_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,2), 101, 205);
-            disp("SNR Column 2, Region 2: " + num2str(snr2_2) + " dB");
+            % disp("SNR Column 2, Region 2: " + num2str(snr2_2) + " dB");
             [snr3_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,3), 101, 205);
-            disp("SNR Column 3, Region 2: " + num2str(snr3_2) + " dB");
+            % disp("SNR Column 3, Region 2: " + num2str(snr3_2) + " dB");
             [snr4_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,4), 101, 205);
-            disp("SNR Column 4, Region 2: " + num2str(snr4_2) + " dB");
+            % disp("SNR Column 4, Region 2: " + num2str(snr4_2) + " dB");
             snr1_2_linear = 10.^(snr1_2 / 10);
             snr2_2_linear = 10.^(snr2_2 / 10);
             snr3_2_linear = 10.^(snr3_2 / 10);
@@ -155,16 +169,16 @@ for loc = locations
 
             avg_region2_linear = (snr1_2_linear+snr2_2_linear+snr3_2_linear+snr4_2_linear)/4;
             avg_region2_fixed = 10 * log10(avg_region2_linear);
-            disp("Average Region 2 Fixed: " + num2str(avg_region2_fixed) + " dB");
+            % disp("Average Region 2 Fixed: " + num2str(avg_region2_fixed) + " dB");
 
             [snr1_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,1), 206, 301);
-            disp("SNR Column 1, Region 3: " + num2str(snr1_3) + " dB");
+            % disp("SNR Column 1, Region 3: " + num2str(snr1_3) + " dB");
             [snr2_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,2), 206, 301);
-            disp("SNR Column 2, Region 3: " + num2str(snr2_3) + " dB");
+            % disp("SNR Column 2, Region 3: " + num2str(snr2_3) + " dB");
             [snr3_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,3), 206, 301);
-            disp("SNR Column 3, Region 3: " + num2str(snr3_3) + " dB");
+            % disp("SNR Column 3, Region 3: " + num2str(snr3_3) + " dB");
             [snr4_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,4), 206, 301);
-            disp("SNR Column 4, Region 3: " + num2str(snr4_3) + " dB");
+            % disp("SNR Column 4, Region 3: " + num2str(snr4_3) + " dB");
             snr1_3_linear = 10.^(snr1_3 / 10);
             snr2_3_linear = 10.^(snr2_3 / 10);
             snr3_3_linear = 10.^(snr3_3 / 10);
@@ -172,7 +186,7 @@ for loc = locations
 
             avg_region3_linear = (snr1_3_linear+snr2_3_linear+snr3_3_linear+snr4_3_linear)/4;
             avg_region3_fixed = 10 * log10(avg_region3_linear);
-            disp("Average Region 3 Fixed: " + num2str(avg_region3_fixed) + " dB");
+            % disp("Average Region 3 Fixed: " + num2str(avg_region3_fixed) + " dB");
 
             % avg_region1 = (snr1_1+snr2_1+snr3_1+snr4_1)/4;
             % disp("Average Region 1: " + num2str(avg_region1) + " dB");
@@ -184,13 +198,13 @@ for loc = locations
             % overall_avg = (avg_region1 + avg_region2 + avg_region3)/3;
             % disp("Average All: " + num2str(overall_avg) + " dB");
 
-            % Old way
-            rows_combined = (sum(rx_xA_jamsig_noise,2))./4;
-            signal_power0 = rms(rows_combined).^2;
-            noise_region0 = rx_xA_jamsig_noise(1:100);
-            noise_power0 = var(noise_region0);
-            snr_value_db0 = 10 * log10(signal_power0 / noise_power0);
-            disp("Before MVDR SNR old: " + num2str(snr_value_db0) + " dB");
+            % % Old way
+            % rows_combined = (sum(rx_xA_jamsig_noise,2))./4;
+            % signal_power0 = rms(rows_combined).^2;
+            % noise_region0 = rx_xA_jamsig_noise(1:100);
+            % noise_power0 = var(noise_region0);
+            % snr_value_db0 = 10 * log10(signal_power0 / noise_power0);
+            % disp("Before MVDR SNR old: " + num2str(snr_value_db0) + " dB");
             
             [doas, averageMatrix] = estimateMUSIC(uraNewW, rx_xA_jamsig_noise, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
 
@@ -210,27 +224,20 @@ for loc = locations
             [signal, weights2] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise+jamsig, doas, t, carrierFreq, propagation_path, show_plots);
 
             % Power Calculation
-            % signal_power = rms(signal)^2;
-            % noise_region = signal(1:100); % Example: use a section where the signal is expected to be minimal
-            % noise_power = var(noise_region);  % Variance of noise
-            % snr_value_db = 10 * log10(signal_power / noise_power);
+            
             [snr_dB_1_100, signal_pwr_1_100] = calculateSNR(signal, 1, 100);
             disp("After MVDR SNR (1:100)  : " + num2str(snr_dB_1_100) + " dB");
 
-            % noise_region2 = signal(101:205);
-            % noise_power2 = var(noise_region2);
-            % snr_value_db2 = 10 * log10(signal_power / noise_power2);
+           
             [snr_dB_101_205, signal_pwr_101_205] = calculateSNR(signal, 101, 205);
-            disp("After MVDR SNR (101:205): " + num2str(snr_dB_101_205) + " dB");
+            % disp("After MVDR SNR (101:205): " + num2str(snr_dB_101_205) + " dB");
 
-            % noise_region3 = signal(206:301);
-            % noise_power3 = var(noise_region3);
-            % snr_value_db3 = 10 * log10(signal_power / noise_power3);
+            
             [snr_dB_206_301, signal_pwr_206_301] = calculateSNR(signal, 206, 301);
-            disp("After MVDR SNR (206:301): " + num2str(snr_dB_206_301) + " dB");
+            % disp("After MVDR SNR (206:301): " + num2str(snr_dB_206_301) + " dB");
 
             avg_after_snr = (snr_dB_1_100 + snr_dB_101_205 + snr_dB_206_301)/3;
-            disp("Average After SNR: " + num2str(avg_after_snr) + " dB");
+            % disp("Average After SNR: " + num2str(avg_after_snr) + " dB");
 
             % sweep(iteration,1) = loc;
             % sweep(iteration,2) = bjammerPwr;
@@ -288,7 +295,7 @@ for loc = locations
 end
 
 % Save matrix of data to csv file 
- saveData(big_sweep, n);
+ % saveData(big_sweep, n);
 
 % figure;
 % scatter(sweep(:,1), sweep(:,2),[], '*','b')

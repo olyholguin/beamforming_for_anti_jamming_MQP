@@ -1,9 +1,10 @@
-function [snr_dB_before, signal_power] = calculateSNR(entire_signal, region_start, region_end)
+function [snr_dB_before, signal_power, noise_power] = calculateSNR(entire_signal, region_start, region_end)
 
 signal_power = rms(entire_signal).^2;
 noise_region = entire_signal(region_start:region_end, 1);            
 noise_power = var(noise_region);
 snr_dB_before = 10 * log10(signal_power / noise_power);
+
 
 end
 
