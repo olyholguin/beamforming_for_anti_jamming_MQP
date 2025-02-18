@@ -21,7 +21,7 @@ else
    sweep = zeros(360,3);
    locations = 0:20:100;
 end
-colors = sweep;
+% colors = sweep;
 n = length(locations);
 big_sweep = zeros(n,16);
 
@@ -43,9 +43,9 @@ propagation_path = " B to A";
 % Initialize Phased Objects
 [transmitter, radiator, targetchannel, amplifier] = initPhasedObjs(ura, carrierFreq, samplingFreq);
 
-jamMatrix = [0.01 0.1 1 10 100 1000];
+% jamMatrix = [0.01 0.1 1 10 100 1000];
 iteration = 1;
-% locations = 0;
+locations = 0;
 jamMatrix = 10;
 weights = ones(4,1);
 
@@ -110,12 +110,87 @@ for loc = locations
             % before_MVDR_1noise = snr(rx_xA, noise+jamsig);
             % disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
             
+            entire_before_signal = (sum(rx_xA_jamsig_noise,2))./4; % rows combined
+            [snr_dB_before_1_100, signal_pwr_before_1_100] = calculateSNR(entire_before_signal, 1, 100);
+            disp("Before MVDR SNR fnc (1:100): " + num2str(snr_dB_before_1_100) + " dB");
+
+            [snr_dB_before_101_205, signal_pwr_before_101_205] = calculateSNR(entire_before_signal, 101, 205);
+            disp("Before MVDR SNR fnc (101:205): " + num2str(snr_dB_before_101_205) + " dB");
+
+            [snr_dB_before_206_301, signal_pwr_before_206_301] = calculateSNR(entire_before_signal, 206, 301);
+            disp("Before MVDR SNR fnc (206:301): " + num2str(snr_dB_before_206_301) + " dB");
+
+            avg_before_snr = (snr_dB_before_1_100 + snr_dB_before_101_205 + snr_dB_before_206_301)/3;
+            disp("Average Before SNR: " + num2str(avg_before_snr) + " dB");
+
+            [snr1_1, ~] = calculateSNR(rx_xA_jamsig_noise(:,1), 1, 100);
+            disp("SNR Column 1, Region 1: " + num2str(snr1_1) + " dB");
+            [snr2_1, ~] = calculateSNR(rx_xA_jamsig_noise(:,2), 1, 100);
+            disp("SNR Column 2, Region 1: " + num2str(snr2_1) + " dB");
+            [snr3_1, ~] = calculateSNR(rx_xA_jamsig_noise(:,3), 1, 100);
+            disp("SNR Column 3, Region 1: " + num2str(snr3_1) + " dB");
+            [snr4_1, ~] = calculateSNR(rx_xA_jamsig_noise(:,4), 1, 100);
+            disp("SNR Column 4, Region 1: " + num2str(snr4_1) + " dB");
+            snr1_1_linear = 10.^(snr1_1 / 10);
+            snr2_1_linear = 10.^(snr2_1 / 10);
+            snr3_1_linear = 10.^(snr3_1 / 10);
+            snr4_1_linear = 10.^(snr4_1 / 10);
+
+            avg_region1_linear = (snr1_1_linear+snr2_1_linear+snr3_1_linear+snr4_1_linear)/4;
+            avg_region1_fixed = 10 * log10(avg_region1_linear);
+            disp("Average Region 1 Fixed: " + num2str(avg_region1_fixed) + " dB");
+
+            [snr1_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,1), 101, 205);
+            disp("SNR Column 1, Region 2: " + num2str(snr1_2) + " dB");
+            [snr2_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,2), 101, 205);
+            disp("SNR Column 2, Region 2: " + num2str(snr2_2) + " dB");
+            [snr3_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,3), 101, 205);
+            disp("SNR Column 3, Region 2: " + num2str(snr3_2) + " dB");
+            [snr4_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,4), 101, 205);
+            disp("SNR Column 4, Region 2: " + num2str(snr4_2) + " dB");
+            snr1_2_linear = 10.^(snr1_2 / 10);
+            snr2_2_linear = 10.^(snr2_2 / 10);
+            snr3_2_linear = 10.^(snr3_2 / 10);
+            snr4_2_linear = 10.^(snr4_2 / 10);
+
+            avg_region2_linear = (snr1_2_linear+snr2_2_linear+snr3_2_linear+snr4_2_linear)/4;
+            avg_region2_fixed = 10 * log10(avg_region2_linear);
+            disp("Average Region 2 Fixed: " + num2str(avg_region2_fixed) + " dB");
+
+            [snr1_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,1), 206, 301);
+            disp("SNR Column 1, Region 3: " + num2str(snr1_3) + " dB");
+            [snr2_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,2), 206, 301);
+            disp("SNR Column 2, Region 3: " + num2str(snr2_3) + " dB");
+            [snr3_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,3), 206, 301);
+            disp("SNR Column 3, Region 3: " + num2str(snr3_3) + " dB");
+            [snr4_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,4), 206, 301);
+            disp("SNR Column 4, Region 3: " + num2str(snr4_3) + " dB");
+            snr1_3_linear = 10.^(snr1_3 / 10);
+            snr2_3_linear = 10.^(snr2_3 / 10);
+            snr3_3_linear = 10.^(snr3_3 / 10);
+            snr4_3_linear = 10.^(snr4_3 / 10);
+
+            avg_region3_linear = (snr1_3_linear+snr2_3_linear+snr3_3_linear+snr4_3_linear)/4;
+            avg_region3_fixed = 10 * log10(avg_region3_linear);
+            disp("Average Region 3 Fixed: " + num2str(avg_region3_fixed) + " dB");
+
+            % avg_region1 = (snr1_1+snr2_1+snr3_1+snr4_1)/4;
+            % disp("Average Region 1: " + num2str(avg_region1) + " dB");
+            % avg_region2 = (snr1_2+snr2_2+snr3_2+snr4_2)/4;
+            % disp("Average Region 2: " + num2str(avg_region2) + " dB");
+            % avg_region3 = (snr1_3+snr2_3+snr3_3+snr4_3)/4;
+            % disp("Average Region 3: " + num2str(avg_region3) + " dB");
+            % 
+            % overall_avg = (avg_region1 + avg_region2 + avg_region3)/3;
+            % disp("Average All: " + num2str(overall_avg) + " dB");
+
+            % Old way
             rows_combined = (sum(rx_xA_jamsig_noise,2))./4;
             signal_power0 = rms(rows_combined).^2;
             noise_region0 = rx_xA_jamsig_noise(1:100);
             noise_power0 = var(noise_region0);
             snr_value_db0 = 10 * log10(signal_power0 / noise_power0);
-            disp("Before MVDR SNR: " + num2str(snr_value_db0) + " dB");
+            disp("Before MVDR SNR old: " + num2str(snr_value_db0) + " dB");
             
             [doas, averageMatrix] = estimateMUSIC(uraNewW, rx_xA_jamsig_noise, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
 
@@ -135,23 +210,26 @@ for loc = locations
             [signal, weights2] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise+jamsig, doas, t, carrierFreq, propagation_path, show_plots);
 
             % Power Calculation
-            signal_power = rms(signal)^2;
-            noise_region = signal(1:100); % Example: use a section where the signal is expected to be minimal
-            noise_power = var(noise_region);  % Variance of noise
-            snr_value_db = 10 * log10(signal_power / noise_power);
-            disp("After MVDR SNR (1:100)  : " + num2str(snr_value_db) + " dB");
+            % signal_power = rms(signal)^2;
+            % noise_region = signal(1:100); % Example: use a section where the signal is expected to be minimal
+            % noise_power = var(noise_region);  % Variance of noise
+            % snr_value_db = 10 * log10(signal_power / noise_power);
+            [snr_dB_1_100, signal_pwr_1_100] = calculateSNR(signal, 1, 100);
+            disp("After MVDR SNR (1:100)  : " + num2str(snr_dB_1_100) + " dB");
 
-            noise_region2 = signal(101:205);
-            noise_power2 = var(noise_region2);
-            snr_value_db2 = 10 * log10(signal_power / noise_power2);
-            disp("After MVDR SNR (101:205): " + num2str(snr_value_db2) + " dB");
+            % noise_region2 = signal(101:205);
+            % noise_power2 = var(noise_region2);
+            % snr_value_db2 = 10 * log10(signal_power / noise_power2);
+            [snr_dB_101_205, signal_pwr_101_205] = calculateSNR(signal, 101, 205);
+            disp("After MVDR SNR (101:205): " + num2str(snr_dB_101_205) + " dB");
 
-            noise_region3 = signal(206:301);
-            noise_power3 = var(noise_region3);
-            snr_value_db3 = 10 * log10(signal_power / noise_power3);
-            disp("After MVDR SNR (206:301): " + num2str(snr_value_db3) + " dB");
+            % noise_region3 = signal(206:301);
+            % noise_power3 = var(noise_region3);
+            % snr_value_db3 = 10 * log10(signal_power / noise_power3);
+            [snr_dB_206_301, signal_pwr_206_301] = calculateSNR(signal, 206, 301);
+            disp("After MVDR SNR (206:301): " + num2str(snr_dB_206_301) + " dB");
 
-            avg_after_snr = (snr_value_db+snr_value_db2+snr_value_db3)/3;
+            avg_after_snr = (snr_dB_1_100 + snr_dB_101_205 + snr_dB_206_301)/3;
             disp("Average After SNR: " + num2str(avg_after_snr) + " dB");
 
             % sweep(iteration,1) = loc;
@@ -160,6 +238,7 @@ for loc = locations
             % sweep(iteration, 1) = (51-i);
             % sweep(iteration,2) = before_MVDR_1noise;
             % sweep(iteration,3) = after_MVDR_1noise;
+
             big_sweep(iteration, 1) = targetlocB(1,1); % X
             big_sweep(iteration, 2) = targetlocB(2,1); % Y
             big_sweep(iteration, 3) = targetlocB(3,1); % Z
@@ -172,24 +251,29 @@ for loc = locations
             big_sweep(iteration, 8) = jammerloc(2,1);
             big_sweep(iteration, 9) = jammerloc(3,1);
 
-            big_sweep(iteration, 13) = signal_power0; % Signal power before MVDR
-            big_sweep(iteration, 14) = signal_power; % Signal power after MVDR
-            big_sweep(iteration, 15) = snr_value_db0; % SNR before MVDR
-            big_sweep(iteration, 16) = avg_after_snr; % SNR after MVDR
+            big_sweep(iteration, 13) = signal_pwr_before_1_100;   % Signal power before MVDR
+            big_sweep(iteration, 14) = signal_pwr_1_100;    % Signal power after MVDR
+            big_sweep(iteration, 15) = snr_dB_before_1_100;       % SNR before MVDR
+            big_sweep(iteration, 16) = avg_after_snr;       % SNR after MVDR
 
-            if bjammerPwr == 0.01
-                colors(iteration,:) = [0.039 0.58 0.039];
-            elseif bjammerPwr == 0.1
-                colors(iteration,:) = [0.098 0.949 0.098];
-            elseif bjammerPwr == 1
-                colors(iteration,:) = [0.929 0.969 0.129];
-            elseif bjammerPwr == 10
-                colors(iteration,:) = [1 0.651 0];
-            elseif bjammerPwr == 100
-                colors(iteration,:) = [1 0 0];
-            else
-                colors(iteration,:) = [0.6 0.051 0];
-            end
+            % big_sweep(iteration, 13) = signal_power0;     % Signal power before MVDR
+            % big_sweep(iteration, 14) = signal_power;      % Signal power after MVDR
+            % big_sweep(iteration, 15) = snr_value_db0;     % SNR before MVDR
+            % big_sweep(iteration, 16) = avg_after_snr;     % SNR after MVDR
+
+            % if bjammerPwr == 0.01
+            %     colors(iteration,:) = [0.039 0.58 0.039];
+            % elseif bjammerPwr == 0.1
+            %     colors(iteration,:) = [0.098 0.949 0.098];
+            % elseif bjammerPwr == 1
+            %     colors(iteration,:) = [0.929 0.969 0.129];
+            % elseif bjammerPwr == 10
+            %     colors(iteration,:) = [1 0.651 0];
+            % elseif bjammerPwr == 100
+            %     colors(iteration,:) = [1 0 0];
+            % else
+            %     colors(iteration,:) = [0.6 0.051 0];
+            % end
             iteration = iteration + 1;
             % Donut
             % figure;
