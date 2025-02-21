@@ -14,16 +14,20 @@ disp(['Elevation Angle Percent Error: ', num2str(percent_error_2_1), '%']);
 disp(['Average Angle Percent Error: ', num2str(total_percent_error), '%']);
 
 runMVDR = false;
+
 switch true
-    case (total_percent_error > 1500)
+    case (total_percent_error > 15)
         disp('Percent Error Greater than 15%');
-        % Run Things again
+        % Run estimateMusic again for beter DOA
         return;
-    case (total_percent_error > 1000)
+    case (total_percent_error > 10)
         disp('Percent Error Greater than 10%');
+        % Run estimateMusic again for beter DOA 
         return;
-    case (total_percent_error > 500)
-        disp('Percent Error Greater than 5%');
+    case (total_percent_error > 7.5)
+        disp('Percent Error Greater than 7.5%');
+        % Percent Error not perfect, but still run MVDR
+        % runMVDR = true;
         return;
     otherwise
         % Will perform MVDR Beamforming in main

@@ -5,8 +5,9 @@ noise_region = entire_signal(region_start:region_end, 1);
 noise_power = var(noise_region);
 snr_dB_before = 10 * log10(signal_power / noise_power);
 
-
 end
+
+
 
 % % Old way
 %             rows_combined = (sum(rx_xA_jamsig_noise,2))./4;

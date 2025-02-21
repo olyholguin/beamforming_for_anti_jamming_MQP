@@ -5,7 +5,7 @@ samplingFreq = 1e3;
 t = 0:(1/samplingFreq):0.3;
 colSp = 0.5;
 rowSp = 0.4;
-pulseHeight = 10;
+pulseHeight = 8;
 noisePwr = 0.0001;
 n = randi([0 99],1,1);
 rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
@@ -51,7 +51,7 @@ weights = ones(4,1);
 
 for loc = locations
     for jamPwr = jamMatrix
-        for i = 1:1:1
+        for i = 1:1:4
             bjammerPwr = jamPwr;
 
             % Locations of A, B and Jammer
@@ -88,156 +88,66 @@ for loc = locations
             % Calculate Expected DoAs
             [pathAtoB, pathBtoA, pathJtoA, pathJtoB] = calculateExpected(targetlocA, targetlocB, jammerloc);
 
-            % Transmit signal from B to A
-            % disp("weight values " + weights);
-            w1 = weights(1:2);
-            w2 = weights(3:4);
-            uraNewW = phased.URA([2,2],'Taper',[w1,w2], 'ElementSpacing', [1.19916 1.49895]);
-            [rx_xA, noise] = propagateSignal(x, pathBtoA, targetlocB, targetlocA, zeroVelocity, carrierFreq, noisePwr, rs, transmitter, radiator, targetchannel, uraNewW);
+            % Run estimateMusic until DoA percent error is less than 10% or
+            % loop had run 10 times
+            runMVDR = false;
+            music_counter = 0;
+            while ~runMVDR
+                % Transmit signal from B to A
+                disp(" ")
+                disp("weight values " + weights);
+                w1 = weights(1:2);
+                w2 = weights(3:4);
+                uraNewW = phased.URA([2,2],'Taper',[w1,w2], 'ElementSpacing', [1.19916 1.49895]);
+                [rx, noise] = propagateSignal(x, pathBtoA, targetlocB, targetlocA, zeroVelocity, carrierFreq, noisePwr, rs, transmitter, radiator, targetchannel, uraNewW);
 
-            % Initialize Jammer values
-            [jamsig] = startJammer(bjammerPwr, samplingFreq, carrierFreq, ura, jammerloc, targetlocA, zeroVelocity, pathJtoA);
+                % Initialize Jammer values
+                [jx] = startJammer(bjammerPwr, samplingFreq, carrierFreq, ura, jammerloc, targetlocA, zeroVelocity, pathJtoA);
 
-            rx_xA_jamsig = rx_xA + jamsig;
-            rx_xA_jamsig_noise = rx_xA_jamsig + noise;
+                rx_jx = rx + jx;
+                rx_total = rx_jx + noise;
 
-            % % Command Line Output
-            disp(" ")
-            disp("Transmitting B to A");
-            disp(strcat("B (Tx) location: ",num2str(targetlocB(1,1)),", ",num2str(targetlocB(2,1)),", ",num2str(targetlocB(3,1))))
-            disp(strcat("A (Rx) location: ",num2str(targetlocA(1,1)),", ",num2str(targetlocA(2,1)),", ",num2str(targetlocA(3,1))))
-            disp(strcat("Jammer location: ",num2str(jammerloc(1,1)),", ",num2str(jammerloc(2,1)),", ",num2str(jammerloc(3,1))))
-            % before_MVDR_1noise = snr(rx_xA, noise+jamsig);
-            % disp("Before MVDR SNR: " + num2str(before_MVDR_1noise) + " dB");
-            
-            entire_before_signal = (sum(rx_xA_jamsig_noise,2))./4; % rows combined
-            [snr_dB_before_1_100, signal_pwr_before_1_100] = calculateSNR(entire_before_signal, 1, 100);
-            disp("SNR of Signal from All Antennas Averaged (1:100): " + num2str(snr_dB_before_1_100) + " dB");
+                % Command Line Output of Locations
+                disp(" ")
+                % disp("Transmitting B to A");
+                % disp(strcat("B (Tx) location: ",num2str(targetlocB(1,1)),", ",num2str(targetlocB(2,1)),", ",num2str(targetlocB(3,1))))
+                % disp(strcat("A (Rx) location: ",num2str(targetlocA(1,1)),", ",num2str(targetlocA(2,1)),", ",num2str(targetlocA(3,1))))
+                % disp(strcat("Jammer location: ",num2str(jammerloc(1,1)),", ",num2str(jammerloc(2,1)),", ",num2str(jammerloc(3,1))))
 
-            [snr_dB_before_101_205, signal_pwr_before_101_205] = calculateSNR(entire_before_signal, 101, 205);
-            % disp("Before MVDR SNR fnc (101:205): " + num2str(snr_dB_before_101_205) + " dB");
+                % Average Antenna Columns for SNR Calculation
+                antennas_combined_signal = (sum((abs(rx_total)),2))./4;
 
-            [snr_dB_before_206_301, signal_pwr_before_206_301] = calculateSNR(entire_before_signal, 206, 301);
-            % disp("Before MVDR SNR fnc (206:301): " + num2str(snr_dB_before_206_301) + " dB");
+                % Calculate SNR of Signal
+                before_snr = 20 * log10(extractPower(antennas_combined_signal, 101, 205) / extractPower(antennas_combined_signal,  1, 100));
+                disp("SNR Before MVDR: " + num2str(before_snr) + " dB");
 
-            avg_before_snr = (snr_dB_before_1_100 + snr_dB_before_101_205 + snr_dB_before_206_301)/3;
-            % disp("Average Before SNR: " + num2str(avg_before_snr) + " dB");
-            
+                % % Run estimateMusic until DoA percent error is less than 10% or
+                % % loop had run 10 times
+                % runMVDR = false;
+                % music_counter = 0;
+                % while ~runMVDR
+                music_counter = music_counter+1;
+                [doas, averageMatrix] = estimateMUSIC(uraNewW, rx_total, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
+                fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
 
-            [snr1_1, signal_power1_1, noise_power1_1] = calculateSNR(rx_xA_jamsig_noise(:,1), 1, 100);
-            % disp("SNR Column 1, Region 1: " + num2str(snr1_1) + " dB");
-            [snr2_1, signal_power2_1, noise_power2_1] = calculateSNR(rx_xA_jamsig_noise(:,2), 1, 100);
-            % disp("SNR Column 2, Region 1: " + num2str(snr2_1) + " dB");
-            [snr3_1, signal_power3_1, noise_power3_1] = calculateSNR(rx_xA_jamsig_noise(:,3), 1, 100);
-            % disp("SNR Column 3, Region 1: " + num2str(snr3_1) + " dB");
-            [snr4_1, signal_power4_1, noise_power4_1] = calculateSNR(rx_xA_jamsig_noise(:,4), 1, 100);
-            % disp("SNR Column 4, Region 1: " + num2str(snr4_1) + " dB");
-            
-            
-            snr1_1_linear = 10.^(snr1_1 / 10);
-            snr2_1_linear = 10.^(snr2_1 / 10);
-            snr3_1_linear = 10.^(snr3_1 / 10);
-            snr4_1_linear = 10.^(snr4_1 / 10);
+                checkNaN(doas);
 
-            % Calculate the SNR, by taking snr of each antenna then
-            % linearizing it, then averaging the 4 snr's then converting
-            % back to dB
-            avg_region1_linear = (snr1_1_linear+snr2_1_linear+snr3_1_linear+snr4_1_linear)/4;
-            avg_region1_fixed = 10 * log10(avg_region1_linear);
-            disp("SNR Calculated at Each Antenna Then Averaged in log scale (1:100): " + num2str((snr1_1+snr2_1+snr3_1+snr1_1)/4) + " dB");
-            disp("SNR Calculated at Each Antenna Then Linearized and Averaged (1:100): " + num2str(avg_region1_fixed) + " dB");
-
-            % Calculate the SNR, by taking the Average signal power and
-            % noise power, the plug into SNR Equation
-            signal_powertotal = signal_power1_1+ signal_power2_1+signal_power3_1+signal_power4_1;
-            noise_powertotal = noise_power1_1+ noise_power2_1+noise_power3_1+noise_power4_1;
-            snr_using_avg_powers = 10 * log10(signal_powertotal / noise_powertotal);
-            disp("SNR Calculated with Average Power Values (1:100): " + num2str(snr_using_avg_powers) + " dB");
-
-            [snr1_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,1), 101, 205);
-            % disp("SNR Column 1, Region 2: " + num2str(snr1_2) + " dB");
-            [snr2_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,2), 101, 205);
-            % disp("SNR Column 2, Region 2: " + num2str(snr2_2) + " dB");
-            [snr3_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,3), 101, 205);
-            % disp("SNR Column 3, Region 2: " + num2str(snr3_2) + " dB");
-            [snr4_2, ~] = calculateSNR(rx_xA_jamsig_noise(:,4), 101, 205);
-            % disp("SNR Column 4, Region 2: " + num2str(snr4_2) + " dB");
-            snr1_2_linear = 10.^(snr1_2 / 10);
-            snr2_2_linear = 10.^(snr2_2 / 10);
-            snr3_2_linear = 10.^(snr3_2 / 10);
-            snr4_2_linear = 10.^(snr4_2 / 10);
-
-            avg_region2_linear = (snr1_2_linear+snr2_2_linear+snr3_2_linear+snr4_2_linear)/4;
-            avg_region2_fixed = 10 * log10(avg_region2_linear);
-            % disp("Average Region 2 Fixed: " + num2str(avg_region2_fixed) + " dB");
-
-            [snr1_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,1), 206, 301);
-            % disp("SNR Column 1, Region 3: " + num2str(snr1_3) + " dB");
-            [snr2_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,2), 206, 301);
-            % disp("SNR Column 2, Region 3: " + num2str(snr2_3) + " dB");
-            [snr3_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,3), 206, 301);
-            % disp("SNR Column 3, Region 3: " + num2str(snr3_3) + " dB");
-            [snr4_3, ~] = calculateSNR(rx_xA_jamsig_noise(:,4), 206, 301);
-            % disp("SNR Column 4, Region 3: " + num2str(snr4_3) + " dB");
-            snr1_3_linear = 10.^(snr1_3 / 10);
-            snr2_3_linear = 10.^(snr2_3 / 10);
-            snr3_3_linear = 10.^(snr3_3 / 10);
-            snr4_3_linear = 10.^(snr4_3 / 10);
-
-            avg_region3_linear = (snr1_3_linear+snr2_3_linear+snr3_3_linear+snr4_3_linear)/4;
-            avg_region3_fixed = 10 * log10(avg_region3_linear);
-            % disp("Average Region 3 Fixed: " + num2str(avg_region3_fixed) + " dB");
-
-            % avg_region1 = (snr1_1+snr2_1+snr3_1+snr4_1)/4;
-            % disp("Average Region 1: " + num2str(avg_region1) + " dB");
-            % avg_region2 = (snr1_2+snr2_2+snr3_2+snr4_2)/4;
-            % disp("Average Region 2: " + num2str(avg_region2) + " dB");
-            % avg_region3 = (snr1_3+snr2_3+snr3_3+snr4_3)/4;
-            % disp("Average Region 3: " + num2str(avg_region3) + " dB");
-            % 
-            % overall_avg = (avg_region1 + avg_region2 + avg_region3)/3;
-            % disp("Average All: " + num2str(overall_avg) + " dB");
-
-            % % Old way
-            % rows_combined = (sum(rx_xA_jamsig_noise,2))./4;
-            % signal_power0 = rms(rows_combined).^2;
-            % noise_region0 = rx_xA_jamsig_noise(1:100);
-            % noise_power0 = var(noise_region0);
-            % snr_value_db0 = 10 * log10(signal_power0 / noise_power0);
-            % disp("Before MVDR SNR old: " + num2str(snr_value_db0) + " dB");
-            
-            [doas, averageMatrix] = estimateMUSIC(uraNewW, rx_xA_jamsig_noise, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range);
-
-            fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
-
-            checkNaN(doas);
-
-            [runMVDR, total_percent_error] = percentErrors(doas, pathBtoA, azimuth_span, elevation_span);
-
-            if (~runMVDR)
-                msg = 'DoA Percent Error was too high';
-                error(msg)
+                [runMVDR, total_percent_error] = percentErrors(doas, pathBtoA, azimuth_span, elevation_span);
+                if (~runMVDR)
+                    disp("DoA Percent Error was too high running MUSIC again");
+                end
+                if music_counter == 10
+                    error('DoA Percent Error was too high, Stopping program')
+                end
             end
 
             % Perform MVDR Beamforming
             disp('Running MVDR Script...');
-            [signal, weights2] = beamformerMVDR(uraNewW, rx_xA_jamsig_noise, noise+jamsig, doas, t, carrierFreq, propagation_path, show_plots);
+            [signal, weights] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
 
-            % Power Calculation
-            
-            [snr_dB_1_100, signal_pwr_1_100] = calculateSNR(signal, 1, 100);
-            disp("After MVDR SNR (1:100)  : " + num2str(snr_dB_1_100) + " dB");
-
-           
-            [snr_dB_101_205, signal_pwr_101_205] = calculateSNR(signal, 101, 205);
-            % disp("After MVDR SNR (101:205): " + num2str(snr_dB_101_205) + " dB");
-
-            
-            [snr_dB_206_301, signal_pwr_206_301] = calculateSNR(signal, 206, 301);
-            % disp("After MVDR SNR (206:301): " + num2str(snr_dB_206_301) + " dB");
-
-            avg_after_snr = (snr_dB_1_100 + snr_dB_101_205 + snr_dB_206_301)/3;
-            % disp("Average After SNR: " + num2str(avg_after_snr) + " dB");
+            % Calculate SNR of Signal after MVDR Beamforming
+            after_snr = 20 * log10(extractPower(signal, 101, 205) / extractPower(signal, 1, 100));
+            disp("SNR After MVDR: " + num2str(after_snr) + " dB");
 
             % sweep(iteration,1) = loc;
             % sweep(iteration,2) = bjammerPwr;
@@ -258,11 +168,6 @@ for loc = locations
             big_sweep(iteration, 8) = jammerloc(2,1);
             big_sweep(iteration, 9) = jammerloc(3,1);
 
-            big_sweep(iteration, 13) = signal_pwr_before_1_100;   % Signal power before MVDR
-            big_sweep(iteration, 14) = signal_pwr_1_100;    % Signal power after MVDR
-            big_sweep(iteration, 15) = snr_dB_before_1_100;       % SNR before MVDR
-            big_sweep(iteration, 16) = avg_after_snr;       % SNR after MVDR
-
             % big_sweep(iteration, 13) = signal_power0;     % Signal power before MVDR
             % big_sweep(iteration, 14) = signal_power;      % Signal power after MVDR
             % big_sweep(iteration, 15) = snr_value_db0;     % SNR before MVDR
@@ -282,14 +187,6 @@ for loc = locations
             %     colors(iteration,:) = [0.6 0.051 0];
             % end
             iteration = iteration + 1;
-            % Donut
-            % figure;
-            % pattern(uraNewW,carrierFreq,'CoordinateSystem','polar','Type','powerdb'); 
-            % view(50,20);
-            % ax = gca;
-            % ax.Position = [-0.15 0.1 0.9 0.8];
-            % camva(4.5); 
-            % campos([520 -250 200]);
         end
     end
 end
