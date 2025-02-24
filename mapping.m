@@ -1,38 +1,122 @@
-function [outputArg1,outputArg2] = mapping(inputArg1,inputArg2)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
-matrix_zeros = zeros(204, 9);
-for i = 1:97
-    matrix_zeros(i, 1) = -101 + i; %A x val
-    matrix_zeros(i, 2) = -4; %A y val
-    matrix_zeros(i, 3) = 0; %A z val
+function [locations] = mapping(cardinal_start, cardinal_end, step)
 
-    matrix_zeros(i, 4) = 0; %B x val
-    matrix_zeros(i, 5) = 0; %B y val
-    matrix_zeros(i, 6) = 0; %B z val
+locations = zeros(1, 9);
 
-    matrix_zeros(i, 7) = -1; %J x val
-    matrix_zeros(i, 8) = 24; %J y val
-    matrix_zeros(i, 9) = 0; %J z val
+targetlocB =    [14; 0; 0];
+jammerloc =     [-1; -124; 0];
 
+if strcmp(cardinal_start, 'west')
+    for i = -50:step:-6
+        new_loc(1, 1) = targetlocB(1);  % Tx x coord
+        new_loc(1, 2) = targetlocB(2);  % Tx y coord
+        new_loc(1, 3) = targetlocB(3);  % Tx z coord
+
+        new_loc(1, 4) = i;              % Rx x coord
+        new_loc(1, 5) = -2;             % Rx y coord
+        new_loc(1, 6) = 0;              % Rx z coord
+
+        new_loc(1, 7) = jammerloc(1);   % J x coord
+        new_loc(1, 8) = jammerloc(2);   % J y coord
+        new_loc(1, 9) = jammerloc(3);   % J z coord
+
+        if sum(locations(1,:)) == 0
+            locations = new_loc;
+        else
+            locations = [locations; new_loc];
+        end
+
+    end
+
+elseif strcmp(cardinal_start, 'north')
+    for i = 50:(-step):2
+        new_loc(1, 1) = targetlocB(1);  % Tx x coord
+        new_loc(1, 2) = targetlocB(2);  % Tx y coord
+        new_loc(1, 3) = targetlocB(3);  % Tx z coord
+
+        new_loc(1, 4) = -6;              % Rx x coord
+        new_loc(1, 5) = i;             % Rx y coord
+        new_loc(1, 6) = 0;              % Rx z coord
+
+        new_loc(1, 7) = jammerloc(1);   % J x coord
+        new_loc(1, 8) = jammerloc(2);   % J y coord
+        new_loc(1, 9) = jammerloc(3);   % J z coord
+
+        if sum(locations(1,:)) == 0
+            locations = new_loc;
+        else
+            locations = [locations; new_loc];
+        end
+    end
+elseif strcmp(cardinal_start, 'south')
+    for i = -50:step:-2
+        new_loc(1, 1) = targetlocB(1);  % Tx x coord
+        new_loc(1, 2) = targetlocB(2);  % Tx y coord
+        new_loc(1, 3) = targetlocB(3);  % Tx z coord
+
+        new_loc(1, 4) = -2;              % Rx x coord
+        new_loc(1, 5) = i;             % Rx y coord
+        new_loc(1, 6) = 0;              % Rx z coord
+
+        new_loc(1, 7) = jammerloc(1);   % J x coord
+        new_loc(1, 8) = jammerloc(2);   % J y coord
+        new_loc(1, 9) = jammerloc(3);   % J z coord
+
+        if sum(locations(1,:)) == 0
+            locations = new_loc;
+        else
+            locations = [locations; new_loc];
+        end
+    end
 end
-j = 1;
-for i = 98:200
-    matrix_zeros(i, 1) = -4; %A x val
-    matrix_zeros(i, 2) = -4 + j; %A y val
-    matrix_zeros(i, 3) = 0; %A z val
 
-    matrix_zeros(i, 4) = 0; %B x val
-    matrix_zeros(i, 5) = 0; %B y val
-    matrix_zeros(i, 6) = 0; %B z val
+if strcmp(cardinal_end, 'north')
+    for i = 2:step:50
+        new_loc(1, 1) = targetlocB(1);  % Tx x coord
+        new_loc(1, 2) = targetlocB(2);  % Tx y coord
+        new_loc(1, 3) = targetlocB(3);  % Tx z coord
 
-    matrix_zeros(i, 7) = -1; %J x val
-    matrix_zeros(i, 8) = 24; %J y val
-    matrix_zeros(i, 9) = 0; %J z val
-    j = j+1;
+        new_loc(1, 4) = -2;             % Rx x coord
+        new_loc(1, 5) = i;              % Rx y coord
+        new_loc(1, 6) = 0;              % Rx z coord
 
+        new_loc(1, 7) = jammerloc(1);    % J x coord
+        new_loc(1, 8) = jammerloc(2);    % J y coord
+        new_loc(1, 9) = jammerloc(3);    % J z coord
+
+        locations = [locations; new_loc];
+    end
+elseif strcmp(cardinal_end, 'south')
+    for i = -2:(-step):-50
+        new_loc(1, 1) = targetlocB(1);  % Tx x coord
+        new_loc(1, 2) = targetlocB(2);  % Tx y coord
+        new_loc(1, 3) = targetlocB(3);  % Tx z coord
+
+        new_loc(1, 4) = -6;             % Rx x coord
+        new_loc(1, 5) = i;              % Rx y coord
+        new_loc(1, 6) = 0;              % Rx z coord
+
+        new_loc(1, 7) = jammerloc(1);    % J x coord
+        new_loc(1, 8) = jammerloc(2);    % J y coord
+        new_loc(1, 9) = jammerloc(3);    % J z coord
+
+        locations = [locations; new_loc];
+    end
+elseif strcmp(cardinal_end, 'west')
+    for i = -6:(-step):-50
+        new_loc(1, 1) = targetlocB(1);  % Tx x coord
+        new_loc(1, 2) = targetlocB(2);  % Tx y coord
+        new_loc(1, 3) = targetlocB(3);  % Tx z coord
+
+        new_loc(1, 4) = i;             % Rx x coord
+        new_loc(1, 5) = 2;              % Rx y coord
+        new_loc(1, 6) = 0;              % Rx z coord
+
+        new_loc(1, 7) = jammerloc(1);    % J x coord
+        new_loc(1, 8) = jammerloc(2);    % J y coord
+        new_loc(1, 9) = jammerloc(3);    % J z coord
+
+        locations = [locations; new_loc];
+    end
 end
 
 end

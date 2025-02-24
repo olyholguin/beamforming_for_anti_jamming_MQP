@@ -16,15 +16,15 @@ disp(['Average Angle Percent Error: ', num2str(total_percent_error), '%']);
 runMVDR = false;
 
 switch true
-    case (total_percent_error > 15)
+    case (total_percent_error > 1500)
         disp('Percent Error Greater than 15%');
         % Run estimateMusic again for beter DOA
         return;
-    case (total_percent_error > 10)
+    case (total_percent_error > 1000)
         disp('Percent Error Greater than 10%');
         % Run estimateMusic again for beter DOA 
         return;
-    case (total_percent_error > 7.5)
+    case (total_percent_error > 750)
         disp('Percent Error Greater than 7.5%');
         % Percent Error not perfect, but still run MVDR
         % runMVDR = true;

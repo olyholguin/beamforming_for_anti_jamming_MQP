@@ -1,4 +1,4 @@
-function [] = saveData(sweep, n)
+function [] = saveData(sweep, cardinal_start, cardinal_end)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 % targetlocB - pass in sweep of targetlocB which would be n x 3 matrix
@@ -20,7 +20,7 @@ date_curr = datestr(datetime('now', 'TimeZone', 'local', 'Format', 'd_MMM_y HH:m
 date_curr = replace(date_curr,"-", "_");
 date_curr = replace(date_curr," ", "_");
 date_curr = replace(date_curr,":", "_");
-filename = strcat('sim_data_', num2str(n), '_iterations_', date_curr, '.csv');
+filename = strcat('sim_data_', cardinal_start(1), '2', cardinal_end(1), '_', date_curr, '.csv');
 
 writematrix(sweep, filename);
 T = readtable(filename, 'TextType','string');
