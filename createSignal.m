@@ -1,4 +1,4 @@
-function [ura, x] = createSignal(t, carrierFreq, colSp, rowSp, i, pulseHeight)
+function [ura, x] = createSignal(t, carrierFreq, colSp, rowSp, pulseHeight)
 % createSignal creates a rectangular pulse using carrierFreq, colSp, rowSp 
 % function outputs URA and noise
 

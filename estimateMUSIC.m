@@ -1,4 +1,4 @@
-function [doas, averageMatrix] = estimateMUSIC(ura, x, noise, carrierFreq, averageMatrix, i, azimuth_range, elevation_range)
+function [doas] = estimateMUSIC(ura, x, noise, carrierFreq, azimuth_range, elevation_range)
 % estimateMUSIC takes in ura and noise and outputs doa array
 
 a_low = azimuth_range(1);
@@ -20,7 +20,5 @@ estimator2D = phased.MUSICEstimator2D('SensorArray',ura,...
 % title("URA 2x2 with 2D MUSIC Estimator");
 
 fprintf("Measured DoA: \t%.2f \t%.2f \n", round(doas(1,1),2), round(doas(2,1),2))
-averageMatrix(i, 1) = doas(1,1);
-averageMatrix(i, 2) = doas(2,1);
 
 end
