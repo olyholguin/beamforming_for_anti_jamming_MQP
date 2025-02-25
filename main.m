@@ -37,7 +37,7 @@ iteration = 1;
 weights = ones(4,1);
 
 % Jammer Power Matrix used for Sweep
-jamMatrix = 0.01;
+jamMatrix = 10;
 % jamMatrix = [0.01 0.1 1 10 100 1000];
 
 for loc = 1:height(locations)
@@ -147,15 +147,15 @@ for loc = 1:height(locations)
 end
 
 % Save matrix of data to csv file
-saveData(sweep, cardinal_start, cardinal_end);
+sweep = saveData(sweep, cardinal_start, cardinal_end);
 
-% figure;
-% scatter(sweep(:,1), sweep(:,2),[], '*','b')
-% hold on;
-% scatter(sweep(:,1), sweep(:,3),[], 'o', 'r')
-% legend('Before','After')
-% xlabel("X and Y Coordinate of Jammer (Meters)")
-% ylabel("SNR in dB")
+figure;
+scatter(sweep(:,10), sweep(:,15),[], '*','b')
+hold on;
+scatter(sweep(:,10), sweep(:,16),[], 'o', 'r')
+legend('Before MVDR','After MVDR')
+xlabel("Distance from Tx to Rx (meters)")
+ylabel("SNR (dB)")
 % scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
 % hold off;
 % scatter(sweep(:,1), sweep(:,2),[], '*','b')

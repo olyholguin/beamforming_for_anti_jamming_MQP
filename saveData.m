@@ -1,4 +1,4 @@
-function [] = saveData(sweep, cardinal_start, cardinal_end)
+function [sweep] = saveData(sweep, cardinal_start, cardinal_end)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 % targetlocB - pass in sweep of targetlocB which would be n x 3 matrix

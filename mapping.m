@@ -3,7 +3,7 @@ function [locations] = mapping(cardinal_start, cardinal_end, step)
 locations = zeros(1, 9);
 
 targetlocB =    [14; 0; 0];
-jammerloc =     [-1; -124; 0];
+jammerloc =     [-14; -54; 0];
 
 if strcmp(cardinal_start, 'west')
     for i = -50:step:-6
