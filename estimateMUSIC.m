@@ -1,5 +1,8 @@
-function [doas] = estimateMUSIC(ura, x, noise, carrierFreq, azimuth_range, elevation_range)
+function [doas] = estimateMUSIC(ura, x, carrierFreq, azimuth_range, elevation_range)
 % estimateMUSIC takes in ura and noise and outputs doa array
+figure;
+plot(abs(x));
+
 
 a_low = azimuth_range(1);
 a_high = azimuth_range(2);
@@ -13,7 +16,8 @@ estimator2D = phased.MUSICEstimator2D('SensorArray',ura,...
     'AzimuthScanAngles',a_low:.5:a_high,...
     'ElevationScanAngles',e_low:.5:e_high);
 
-[~,doas] = estimator2D(x + noise);
+% [~,doas] = estimator2D(x + noise);
+[~,doas] = estimator2D(x);
 
 % figure;
 % plotSpectrum(estimator2D);

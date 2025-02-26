@@ -89,7 +89,7 @@ for loc = 1:height(locations)
             disp("SNR Before MVDR: " + num2str(before_snr) + " dB");
             
             music_counter = music_counter+1;
-            [doas] = estimateMUSIC(uraNewW, rx_total, noise, carrierFreq, azimuth_range, elevation_range);
+            [doas] = estimateMUSIC(uraNewW, rx_total, carrierFreq, azimuth_range, elevation_range);
             fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
 
             checkNaN(doas);
@@ -106,6 +106,12 @@ for loc = 1:height(locations)
         % Perform MVDR Beamforming
         disp('Running MVDR Script...');
         [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
+        
+        % After MUSIC
+        signal_4 = repmat(signal, 1, 4);
+        [doas_after_MVDR] = estimateMUSIC(uraNewW, signal_4, carrierFreq, azimuth_range, elevation_range);
+        [~, after_total_percent_error] = percentErrors(doas_after_MVDR, pathBtoA, azimuth_span, elevation_span);
+        %
 
         % Calculate SNR of Signal after MVDR Beamforming
         after_sig_pwr = extractPower(signal, 101, 205);
