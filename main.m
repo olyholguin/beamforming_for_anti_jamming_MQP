@@ -10,8 +10,8 @@ noisePwr = 0.0001;
 n = randi([0 99],1,1);
 rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 show_plots = false;
-cardinal_start = 'west';
-cardinal_end = 'north';
+cardinal_start = 'north';
+cardinal_end = 'south';
 
 locations = mapping(cardinal_start, cardinal_end, 2);
 
@@ -107,10 +107,46 @@ for loc = 1:height(locations)
         disp('Running MVDR Script...');
         [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
         
-        % After MUSIC
-        signal_4 = repmat(signal, 1, 4);
-        [doas_after_MVDR] = estimateMUSIC(uraNewW, signal_4, carrierFreq, azimuth_range, elevation_range);
-        [~, after_total_percent_error] = percentErrors(doas_after_MVDR, pathBtoA, azimuth_span, elevation_span);
+        % % After MUSIC
+        % signal_4 = repmat(signal, 1, 4);
+        % signal_4(:,1) = signal_4(:,1).*weights(1,1);
+        % signal_4(:,2) = signal_4(:,2).*weights(2,1);
+        % signal_4(:,3) = signal_4(:,3).*weights(3,1);
+        % signal_4(:,4) = signal_4(:,4).*weights(4,1);
+        % [doas_after_MVDR] = estimateMUSIC(uraNewW, signal_4, carrierFreq, azimuth_range, elevation_range);
+        % [~, after_total_percent_error] = percentErrors(doas_after_MVDR, pathBtoA, azimuth_span, elevation_span);
+        % %
+
+        % After MUSIC ChatGPT Method
+        % Example signal
+        wavelength = physconst('LightSpeed')/carrierFreq; % wavelength is in meters
+        % Define antenna positions for a 2x2 URA array
+        d_row = rowSp * wavelength;  % distance between antennas in rows (in wavelengths)
+        d_col = colSp * wavelength;  % distance between antennas in columns (in wavelengths)
+        
+        % theta = deg2rad(doas(1,1));  % elevation
+        % phi = deg2rad(doas(2,1));      % Azimuth
+        theta = deg2rad(pathBtoA(1,1));  % Azimuth
+        phi = deg2rad(pathBtoA(2,1));      % elevation
+
+        % Define the positions of the antennas in the 2x2 URA (row x column)
+        % positions = [0, d_col; 0, 0; d_row, d_col; d_row, 0];  % (row, column)
+        distance_antenna = [ 0, d_col, d_row, sqrt(d_col^2*d_row^2)];
+
+        % Create the signal matrix with different phase shifts for each antenna
+        signal_matrix = zeros(301, 4);
+        for i = 1:4
+            % % For each antenna, calculate phase shifts for row and column direction
+            % delta_phi_row = 2 * pi * positions(i, 1) * sin(theta);  % Phase shift in row direction
+            % delta_phi_col = 2 * pi * positions(i, 2) * sin(phi);    % Phase shift in column direction
+            % 
+            % % Apply combined phase shifts (row + column) to the signal
+            % signal_matrix(:, i) = signal * exp(1j * (delta_phi_row + delta_phi_col));  % Apply phase shift
+            signal_matrix(:, i) = signal * exp(1j * 2 * pi * distance_antenna(i) * sin(theta));  % Apply phase shift
+        end
+        disp("ChatGPT Estimate music");
+        [doas_after_MVDR_chat] = estimateMUSIC(uraNewW, signal_matrix, carrierFreq, azimuth_range, elevation_range);
+
         %
 
         % Calculate SNR of Signal after MVDR Beamforming
@@ -134,6 +170,7 @@ for loc = 1:height(locations)
         sweep(iteration, 14) = after_sig_pwr;      % Signal power after MVDR
         sweep(iteration, 15) = before_snr;     % SNR before MVDR
         sweep(iteration, 16) = after_snr;     % SNR after MVDR
+        sweep(iteration, 17) = total_percent_error;     % Average DOA
 
         % if bjammerPwr == 0.01
         %     colors(iteration,:) = [0.039 0.58 0.039];
