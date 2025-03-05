@@ -16,7 +16,7 @@ if (show_plots)
     xlabel('Time (s)');
     ylabel('Magnitude (V)');
     xlim([0 0.3])
-    ylim([0 0.3])
+    % ylim([0 0.3])
 
     figure;
     p = pattern(ura, carrierFreq, -90:90, 0 ,'Weights', w,'Type','powerdb',...
@@ -25,7 +25,10 @@ if (show_plots)
     % p = pattern(ura, carrierFreq, -90:90, 0 ,'Weights', w,'Type','powerdb',...
     %     'PropagationSpeed',physconst('LightSpeed'),...
     %     'CoordinateSystem','polar');
-    plot(p)
+    angles = -90:1:90;
+    plot(angles, p)
+    xlim([-90 90])
+    xticks(-90:45:90)
     title('Response Pattern at 0 Degrees Elevation');
 
     % figure;
