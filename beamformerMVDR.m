@@ -1,5 +1,7 @@
 function [yURA, w] = beamformerMVDR(ura, x, noise, doas, t, carrierFreq, propagation_path, show_plots)
 % beamformerMVDR takes in URA and DoA and outputs signal and weights
+% figure;
+% plot(abs(x))
 
 mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
     'Direction',doas,'OperatingFrequency',carrierFreq,...
@@ -12,11 +14,12 @@ if (show_plots)
     figure;
     plot(t,abs(yURA));
     axis tight;
-    title(strcat('Output of MVDR Beamformer: ', propagation_path));
+    title('Output of MVDR Beamformer');
+    % subtitle(s)
     xlabel('Time (s)');
     ylabel('Magnitude (V)');
     xlim([0 0.3])
-    % ylim([0 0.3])
+    ylim([0 0.18])
 
     figure;
     p = pattern(ura, carrierFreq, -90:90, 0 ,'Weights', w,'Type','powerdb',...
@@ -29,7 +32,9 @@ if (show_plots)
     plot(angles, p)
     xlim([-90 90])
     xticks(-90:45:90)
-    title('Response Pattern at 0 Degrees Elevation');
+    title('Beam Pattern');
+    xlabel('Azimuth Angle (degrees)')
+    ylabel('Power (dB)')
 
     % figure;
     % polarpattern(p);
