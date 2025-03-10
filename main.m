@@ -10,8 +10,8 @@ noisePwr = 0.0001;
 n = randi([0 99],1,1);
 rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 show_plots = false;
-cardinal_start = 'north';
-cardinal_end = 'south';
+cardinal_start = 'west';
+cardinal_end = 'north';
 
 locations = mapping(cardinal_start, cardinal_end, 2);
 
