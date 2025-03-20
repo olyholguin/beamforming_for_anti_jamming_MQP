@@ -11,7 +11,7 @@ function [sweep] = saveData(sweep, cardinal_start, cardinal_end)
 % signal_pow_after -  passed in 
 % snr_b4,snr_after - passed in 
 
-labels = ["Tx Location x", "Tx Location y", "Tx Location z", "Rx Location x", "Rx Location y", "Rx Location z", "Jammer Location x", "Jammer Location y", "Jammer Location z (m)", "Tx - Rx Distance (m)", "J - Rx Distance (m)", "J - Tx Distance (m)", "Signal Power Before (V)", "Signal Power After (V)", "SNR Before (dB)", "SNR After (dB)"];
+labels = ["Tx Location x", "Tx Location y", "Tx Location z", "Rx Location x", "Rx Location y", "Rx Location z", "Jammer Location x", "Jammer Location y", "Jammer Location z (m)", "Tx - Rx Distance (m)", "J - Rx Distance (m)", "J - Tx Distance (m)", "Signal Power Before (V)", "Signal Power After (V)", "SNR Before (dB)", "SNR After (dB)", "Total Percent Error", "Expected Azimuth", "Expected Elevation", "Measured Azimuth", "Measured Elevation"];
 sweep(:,10) = sqrt((sweep(:,4) - sweep(:,1)).^2+(sweep(:,5) - sweep(:,2)).^2+ (sweep(:,6)-sweep(:,3)).^2);
 sweep(:,11) = sqrt((sweep(:,7) - sweep(:,4)).^2+(sweep(:,8) - sweep(:,5)).^2+ (sweep(:,9)-sweep(:,6)).^2);
 sweep(:,12) = sqrt((sweep(:,7) - sweep(:,1)).^2+(sweep(:,8) - sweep(:,2)).^2+ (sweep(:,9)-sweep(:,3)).^2);

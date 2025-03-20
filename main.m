@@ -12,8 +12,14 @@ rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 show_plots = false;
 cardinal_start = 'west';
 cardinal_end = 'north';
+mobile_jx = true;
+cardinal_start_j = 'south';
+cardinal_end_j = 'west';
 
 locations = mapping(cardinal_start, cardinal_end, 2);
+if mobile_jx
+    locations = mapping_jammer(cardinal_start_j, cardinal_end_j, 2, locations);
+end
 
 n = length(locations);
 sweep = zeros(n,16);
@@ -121,8 +127,7 @@ for loc = 1:height(locations)
 
         % Perform MVDR Beamforming
         disp('Running MVDR Script...');
-        [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
-
+        [signal, weights] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
 
         % Calculate SNR of Signal after MVDR Beamforming
         after_sig_pwr = extractPower(signal, 101, 205);
@@ -146,6 +151,10 @@ for loc = 1:height(locations)
         sweep(iteration, 15) = before_snr;     % SNR before MVDR
         sweep(iteration, 16) = after_snr;     % SNR after MVDR
         sweep(iteration, 17) = total_percent_error;     % Average DOA
+        sweep(iteration, 18) = pathBtoA(1,1);   % Expected Azimuth
+        sweep(iteration, 19) = pathBtoA(2,1);   % Expected Elevation
+        sweep(iteration, 20) = doas(1,1);       % Measured Azimuth
+        sweep(iteration, 21) = doas(2,1);       % Measured Elevation
 
         % if bjammerPwr == 0.01
         %     colors(iteration,:) = [0.039 0.58 0.039];
