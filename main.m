@@ -89,6 +89,22 @@ for loc = 1:height(locations)
             disp("SNR Before MVDR: " + num2str(before_snr) + " dB");
             
             music_counter = music_counter+1;
+
+            % string_loc_tx = strcat("Tx location: ",num2str(loc_tx(1,1)),", ",num2str(loc_tx(2,1)),", ",num2str(loc_tx(3,1)));
+            % string_loc_rx = strcat(" Rx location: ",num2str(loc_rx(1,1)),", ",num2str(loc_rx(2,1)),", ",num2str(loc_rx(3,1)));
+            % string_loc_jx = strcat(" Jammer location: ",num2str(loc_jx(1,1)),", ",num2str(loc_jx(2,1)),", ",num2str(loc_jx(3,1)));
+            % figure;
+            % plot(t, abs(rx_total))
+            % axis tight;
+            % title('Input to MVDR Beamformer');
+            % % s = (strcat('Tx Location: ', loc_tx, 'Rx Location: ', loc_rx, 'Jammer Location: ', loc_jx));
+            % s = strcat(string_loc_tx, string_loc_rx, string_loc_jx);
+            % subtitle(s)
+            % xlabel('Time (s)');
+            % ylabel('Magnitude (V)');
+            % xlim([0 0.3])
+            % ylim([0 0.18])
+
             [doas] = estimateMUSIC(uraNewW, rx_total, carrierFreq, azimuth_range, elevation_range);
             fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
 
