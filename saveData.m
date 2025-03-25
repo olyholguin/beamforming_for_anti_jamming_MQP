@@ -16,16 +16,16 @@ sweep(:,10) = sqrt((sweep(:,4) - sweep(:,1)).^2+(sweep(:,5) - sweep(:,2)).^2+ (s
 sweep(:,11) = sqrt((sweep(:,7) - sweep(:,4)).^2+(sweep(:,8) - sweep(:,5)).^2+ (sweep(:,9)-sweep(:,6)).^2);
 sweep(:,12) = sqrt((sweep(:,7) - sweep(:,1)).^2+(sweep(:,8) - sweep(:,2)).^2+ (sweep(:,9)-sweep(:,3)).^2);
 
-% date_curr = datestr(datetime('now', 'TimeZone', 'local', 'Format', 'd_MMM_y HH:mm:ss'));
-% date_curr = replace(date_curr,"-", "_");
-% date_curr = replace(date_curr," ", "_");
-% date_curr = replace(date_curr,":", "_");
-% filename = strcat('sim_data_', cardinal_start(1), '2', cardinal_end(1), '_', date_curr, '.csv');
-% 
-% writematrix(sweep, filename);
-% T = readtable(filename, 'TextType','string');
-% T = renamevars(T, 1:width(T),labels);
-% writetable(T, filename);
+date_curr = datestr(datetime('now', 'TimeZone', 'local', 'Format', 'd_MMM_y HH:mm:ss'));
+date_curr = replace(date_curr,"-", "_");
+date_curr = replace(date_curr," ", "_");
+date_curr = replace(date_curr,":", "_");
+filename = strcat('sim_data_', cardinal_start(1), '2', cardinal_end(1), '_', date_curr, '.csv');
+
+writematrix(sweep, filename);
+T = readtable(filename, 'TextType','string');
+T = renamevars(T, 1:width(T),labels);
+writetable(T, filename);
 
 
 end

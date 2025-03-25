@@ -10,13 +10,13 @@ noisePwr = 0.0001;
 n = randi([0 99],1,1);
 rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 show_plots = false;
-cardinal_start = 'west';
+cardinal_start = 'south';
 cardinal_end = 'north';
-mobile_jx = true;
+mobile_jx = false;
 cardinal_start_j = 'south';
 cardinal_end_j = 'west';
 
-locations = mapping(cardinal_start, cardinal_end, 2);
+locations = mapping(cardinal_start, cardinal_end, 1);
 if mobile_jx
     locations = mapping_jammer(cardinal_start_j, cardinal_end_j, 2, locations);
 end
@@ -122,12 +122,13 @@ for loc = 1:height(locations)
             end
             if music_counter == 10
                 error('DoA Percent Error was too high, Stopping program')
+                %This is where we put the predict function
             end
         end
 
         % Perform MVDR Beamforming
         disp('Running MVDR Script...');
-        [signal, weights] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
+        [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
 
         % Calculate SNR of Signal after MVDR Beamforming
         after_sig_pwr = extractPower(signal, 101, 205);
