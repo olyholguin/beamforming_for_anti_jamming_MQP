@@ -1,4 +1,8 @@
 % Beamforming for Anti-Jamming Script
+load('mdlSave');
+doa_archive = [];
+num_features = 3;
+model_used = 0;
 
 carrierFreq = 100e6;
 samplingFreq = 1e3;
@@ -16,7 +20,7 @@ mobile_jx = false;
 cardinal_start_j = 'south';
 cardinal_end_j = 'west';
 
-locations = mapping(cardinal_start, cardinal_end, 1);
+locations = mapping(cardinal_start, cardinal_end, 2);
 if mobile_jx
     locations = mapping_jammer(cardinal_start_j, cardinal_end_j, 2, locations);
 end
@@ -120,14 +124,34 @@ for loc = 1:height(locations)
             if (~runMVDR)
                 disp("DoA Percent Error was too high running MUSIC again");
             end
-            if music_counter == 10
-                error('DoA Percent Error was too high, Stopping program')
-                %This is where we put the predict function
+            if music_counter == 3
+                % error('DoA Percent Error was too high, Stopping program')
+                % This is where we put the predict function
+                % newData = X(1,:);
+                % newData = prevously saved 
+                disp('Noisy MUSIC Reading: Calling our ML Model')
+                model_used = 1;
+                if length(doa_archive) == 1
+                    doa_archive = [doas(1,1), doas(1,1), doas(1,1)];
+                end
+                predictedDoA = predict(mdl, doa_archive);
+                disp(['Predicted Azimuth: ', num2str(predictedDoA)]);
+                doas = [predictedDoA ; 0];
+                runMVDR = true;
             end
+            %save doa so that we can access it above
+            
         end
+        
+        if length(doa_archive) >= num_features
+            doa_archive = doa_archive(2:end);
+        end
+        doa_archive = [doa_archive, doas(1,1)];
 
         % Perform MVDR Beamforming
         disp('Running MVDR Script...');
+        % ura_25 = phased.URA([2,2],'Taper',[[.25;.25],[.25;.25]], 'ElementSpacing', [1.19916 1.49895]);
+        % [signal, weights] = beamformerMVDR(ura_25, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
         [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
 
         % Calculate SNR of Signal after MVDR Beamforming
@@ -156,6 +180,7 @@ for loc = 1:height(locations)
         sweep(iteration, 19) = pathBtoA(2,1);   % Expected Elevation
         sweep(iteration, 20) = doas(1,1);       % Measured Azimuth
         sweep(iteration, 21) = doas(2,1);       % Measured Elevation
+        sweep(iteration, 22) = model_used;
 
         % if bjammerPwr == 0.01
         %     colors(iteration,:) = [0.039 0.58 0.039];
@@ -171,6 +196,7 @@ for loc = 1:height(locations)
         %     colors(iteration,:) = [0.6 0.051 0];
         % end
         iteration = iteration + 1;
+        model_used = 0;
     end
 end
 
