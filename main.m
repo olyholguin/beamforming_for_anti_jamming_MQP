@@ -16,7 +16,7 @@ rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 show_plots = false;
 cardinal_start = 'south';
 cardinal_end = 'north';
-mobile_jx = false;
+mobile_jx = true;
 cardinal_start_j = 'south';
 cardinal_end_j = 'west';
 

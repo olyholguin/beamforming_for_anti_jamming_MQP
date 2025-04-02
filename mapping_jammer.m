@@ -4,7 +4,7 @@ jam_loc = zeros(1, 3);
 
 % Starting
 if strcmp(cardinal_start, 'west')
-    for i = -50:step:-6
+    for i = -52:step:-8
         new_loc(1, 1) = i;      % J x coord
         new_loc(1, 2) = -2;     % J y coord
         new_loc(1, 3) = 0;      % J z coord
@@ -16,7 +16,7 @@ if strcmp(cardinal_start, 'west')
         end
     end
 elseif strcmp(cardinal_start, 'north')
-    for i = 50:(-step):2
+    for i = 52:(-step):4
         new_loc(1, 1) = -6;     % J x coord
         new_loc(1, 2) = i;      % J y coord
         new_loc(1, 3) = 0;      % J z coord
@@ -28,7 +28,7 @@ elseif strcmp(cardinal_start, 'north')
         end
     end
 elseif strcmp(cardinal_start, 'south')
-    for i = -50:step:-2
+    for i = -52:step:-4
         new_loc(1, 1) = -2;   % J x coord
         new_loc(1, 2) = i;   % J y coord
         new_loc(1, 3) = 0;   % J z coord
@@ -44,7 +44,7 @@ end
 % Ending
 
 if strcmp(cardinal_end, 'north')
-    for i = 2:step:50
+    for i = 0:step:48
         new_loc(1, 1) = -2;     % J x coord
         new_loc(1, 2) = i;      % J y coord
         new_loc(1, 3) = 0;      % J z coord
@@ -52,7 +52,7 @@ if strcmp(cardinal_end, 'north')
         jam_loc = [jam_loc; new_loc];
     end
 elseif strcmp(cardinal_end, 'south')
-    for i = -2:(-step):-50
+    for i = 0:(-step):-48
         new_loc(1, 1) = -6;     % J x coord
         new_loc(1, 2) = i;      % J y coord
         new_loc(1, 3) = 0;      % J z coord
@@ -60,7 +60,7 @@ elseif strcmp(cardinal_end, 'south')
         jam_loc = [jam_loc; new_loc];
     end
 elseif strcmp(cardinal_end, 'west')
-    for i = -6:(-step):-50
+    for i = -4:(-step):-48
         new_loc(1, 1) = i;      % J x coord
         new_loc(1, 2) = 2;      % J y coord
         new_loc(1, 3) = 0;      % J z coord
