@@ -14,9 +14,9 @@ noisePwr = 0.0001;
 n = randi([0 99],1,1);
 rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 show_plots = false;
-cardinal_start = 'south';
+cardinal_start = 'west';
 cardinal_end = 'north';
-mobile_jx = true;
+mobile_jx = false;
 cardinal_start_j = 'south';
 cardinal_end_j = 'west';
 
@@ -74,7 +74,7 @@ for loc = 1:height(locations)
             disp("weight values " + weights);
             w1 = weights(1:2);
             w2 = weights(3:4);
-            uraNewW = phased.URA([2,2],'Taper',[w1,w2], 'ElementSpacing', [1.19916 1.49895]);
+            uraNewW = phased.URA([2,2],'Taper',[w1;w2], 'ElementSpacing', [1.19916 1.49895]);
             [rx, noise] = propagateSignal(x, pathBtoA, loc_tx, loc_rx, zeroVelocity, carrierFreq, noisePwr, rs, transmitter, radiator, targetchannel, uraNewW);
 
             % Initialize Jammer values
@@ -152,7 +152,8 @@ for loc = 1:height(locations)
         disp('Running MVDR Script...');
         % ura_25 = phased.URA([2,2],'Taper',[[.25;.25],[.25;.25]], 'ElementSpacing', [1.19916 1.49895]);
         % [signal, weights] = beamformerMVDR(ura_25, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
-        [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
+        %[signal, weights] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
+        [signal, weights] = beamformerMVDR(uraNewW, rx_total, noise+jx, pathBtoA, t, carrierFreq, propagation_path, show_plots);
 
         % Calculate SNR of Signal after MVDR Beamforming
         after_sig_pwr = extractPower(signal, 101, 205);
