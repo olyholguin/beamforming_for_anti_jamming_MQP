@@ -45,39 +45,30 @@ for i = 1 : 500
    Y(i,:) = azimuth_truth(i+num_feature);
 end
 % Fit the model
-mdl = fitlm(X, Y);
+% mdl = fitlm(X, Y);
+msvm = fitrsvm(X, Y);
+
 % mdl = fitnlm(X, azimuth_truth);
-plot(mdl)
+% plot(mdl)
+% plot(msvm)
 % mdl = fitrlinear(X, azimuth_truth);
 % mdl = fitrlinear(X, azimuth_truth);
 % mdl = fitglm(X,azimuth_truth,'linear','Distribution','poisson');
 % mdl = fitglm(X,azimuth_truth,'quadratic',...
         % 'Distribution','binomial');
 %Predict DOA using just 1 coordinate
-newData = [-50,-2];
+% newData = [-50,-2];
 newData = X(1,:);
-predictedMPG = predict(mdl, newData);
-disp(['Predicted Azimuth: ', num2str(predictedMPG)]);
-% save('mdlSave', 'mdl');
-%%Car Example from MATLAB
-% load carsmall
-% X = [Weight,Horsepower,Acceleration];
-%
-% mdl = fitlm(X,MPG);
-%
-% mdl.Coefficients;
-%
-% anova(mdl,'summary')
-%
-% plot(mdl)
-%
-% % New data for prediction
-% newData = [3000, 150, 10]; % Example: Weight = 3000, Horsepower = 150, Acceleration = 10
-%
-% % Predict MPG using the fitted model
 % predictedMPG = predict(mdl, newData);
-%
-% % Display the predicted MPG
-% disp(['Predicted MPG: ', num2str(predictedMPG)]);
-%
-% % save('mdlSave', 'mdl')
+predicted = predict(msvm, newData);
+disp(['Predicted Azimuth: ', num2str(predicted)]);
+% save('msvmSave', 'msvm');
+figure
+h(1:2) = gscatter(X(:,1),X(:,2),Y,"rb",".");
+hold on
+% fplot(@(t)sin(t),@(t)cos(t))
+% h(3) = plot(data3(cl.IsSupportVector,1),data3(cl.IsSupportVector,2),"ko");
+contour(x1Grid,x2Grid,reshape(scores(:,2),size(x1Grid)),[0 0],"k")
+legend(h,["-1","+1","Support Vectors"])
+axis equal
+hold off

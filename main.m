@@ -1,5 +1,5 @@
 % Beamforming for Anti-Jamming Script
-load('mdlSave');
+load('msvmSave.mat');
 doa_archive = [];
 num_features = 3;
 model_used = 0;
@@ -16,9 +16,9 @@ rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
 show_plots = false;
 cardinal_start = 'west';
 cardinal_end = 'north';
-mobile_jx = false;
-cardinal_start_j = 'south';
-cardinal_end_j = 'west';
+mobile_jx = true;
+cardinal_start_j = 'west';
+cardinal_end_j = 'north';
 
 locations = mapping(cardinal_start, cardinal_end, 2);
 if mobile_jx
@@ -118,9 +118,16 @@ for loc = 1:height(locations)
             [doas] = estimateMUSIC(uraNewW, rx_total, carrierFreq, azimuth_range, elevation_range);
             fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
 
-            checkNaN(doas);
-
-            [runMVDR, total_percent_error] = percentErrors(doas, pathBtoA, azimuth_span, elevation_span);
+             % checkNaN(doas);
+             if checkNaN(doas) == false
+                [runMVDR, total_percent_error] = percentErrors(doas, pathBtoA, azimuth_span, elevation_span);
+             else
+                 runMVDR = true;
+                 total_percent_error = 100000;
+                 music_counter = 3;
+             end
+             % [runMVDR, total_percent_error] = percentErrors(doas, pathBtoA, azimuth_span, elevation_span);
+             
             if (~runMVDR)
                 disp("DoA Percent Error was too high running MUSIC again");
             end
@@ -131,10 +138,14 @@ for loc = 1:height(locations)
                 % newData = prevously saved 
                 disp('Noisy MUSIC Reading: Calling our ML Model')
                 model_used = 1;
-                if length(doa_archive) == 1
+                if length(doa_archive) < 3
                     doa_archive = [doas(1,1), doas(1,1), doas(1,1)];
                 end
-                predictedDoA = predict(mdl, doa_archive);
+                
+                if isnan(doa_archive)
+                    doa_archive = [[0;0], [0;0], [0;0]];
+                end
+                predictedDoA = predict(msvm, doa_archive);
                 disp(['Predicted Azimuth: ', num2str(predictedDoA)]);
                 doas = [predictedDoA ; 0];
                 runMVDR = true;
@@ -152,8 +163,8 @@ for loc = 1:height(locations)
         disp('Running MVDR Script...');
         % ura_25 = phased.URA([2,2],'Taper',[[.25;.25],[.25;.25]], 'ElementSpacing', [1.19916 1.49895]);
         % [signal, weights] = beamformerMVDR(ura_25, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
-        %[signal, weights] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
-        [signal, weights] = beamformerMVDR(uraNewW, rx_total, noise+jx, pathBtoA, t, carrierFreq, propagation_path, show_plots);
+        [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
+        % [signal, weights] = beamformerMVDR(uraNewW, rx_total, noise+jx, pathBtoA, t, carrierFreq, propagation_path, show_plots);
 
         % Calculate SNR of Signal after MVDR Beamforming
         after_sig_pwr = extractPower(signal, 101, 205);
