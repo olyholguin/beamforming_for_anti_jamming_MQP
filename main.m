@@ -1,5 +1,5 @@
 % Beamforming for Anti-Jamming Script
-load('msvmSave.mat');
+load('mdlSave.mat');
 doa_archive = [];
 num_features = 3;
 model_used = 0;
@@ -13,12 +13,12 @@ pulseHeight = 10;
 noisePwr = 0.0001;
 n = randi([0 99],1,1);
 rs = RandStream.create('mt19937ar', 'Seed', 2007 + n);
-show_plots = false;
+show_plots = true;
 cardinal_start = 'west';
 cardinal_end = 'north';
 mobile_jx = true;
-cardinal_start_j = 'west';
-cardinal_end_j = 'north';
+cardinal_start_j = 'south';
+cardinal_end_j = 'west';
 
 locations = mapping(cardinal_start, cardinal_end, 2);
 if mobile_jx
@@ -40,6 +40,7 @@ propagation_path = " B to A";
 % Create Rectangular Pulse
 [ura, x] = createSignal(t, carrierFreq, colSp, rowSp, pulseHeight);
 
+
 % Initialize Phased Objects
 [transmitter, radiator, targetchannel, amplifier] = initPhasedObjs(ura, carrierFreq, samplingFreq);
 
@@ -58,9 +59,11 @@ for loc = 1:height(locations)
         loc_jx =    [locations(loc, 7); locations(loc, 8); locations(loc, 9)];
 
         %Plot senario
-        if (show_plots)
+        % show_plots = true;
+        if (show_plots & loc_rx == [-2;18;0])
             plotLoc(loc_rx,loc_tx,loc_jx);
         end
+        % show_plots = false;
 
         % Calculate Expected DoAs
         [pathAtoB, pathBtoA, pathJtoA, pathJtoB] = calculateExpected(loc_rx, loc_tx, loc_jx);
@@ -81,6 +84,12 @@ for loc = 1:height(locations)
             [jx] = startJammer(jam_pwr, samplingFreq, carrierFreq, ura, loc_jx, loc_rx, zeroVelocity, pathJtoA);
 
             rx_jx = rx + jx;
+            if iteration == 1
+                prev_rx_total = rx_jx + noise;
+            else
+                prev_rx_total = rx_total;
+            end 
+            
             rx_total = rx_jx + noise;
 
             % Command Line Output of Locations
@@ -103,17 +112,20 @@ for loc = 1:height(locations)
             % string_loc_tx = strcat("Tx location: ",num2str(loc_tx(1,1)),", ",num2str(loc_tx(2,1)),", ",num2str(loc_tx(3,1)));
             % string_loc_rx = strcat(" Rx location: ",num2str(loc_rx(1,1)),", ",num2str(loc_rx(2,1)),", ",num2str(loc_rx(3,1)));
             % string_loc_jx = strcat(" Jammer location: ",num2str(loc_jx(1,1)),", ",num2str(loc_jx(2,1)),", ",num2str(loc_jx(3,1)));
-            % figure;
-            % plot(t, abs(rx_total))
-            % axis tight;
-            % title('Input to MVDR Beamformer');
-            % % s = (strcat('Tx Location: ', loc_tx, 'Rx Location: ', loc_rx, 'Jammer Location: ', loc_jx));
-            % s = strcat(string_loc_tx, string_loc_rx, string_loc_jx);
-            % subtitle(s)
-            % xlabel('Time (s)');
-            % ylabel('Magnitude (V)');
-            % xlim([0 0.3])
-            % ylim([0 0.18])
+            if (show_plots & loc_rx == [-46;-2;0])
+                fig = figure;
+                set(fig, 'Color', 'w');
+                plot(t, abs(rx_total))
+                axis tight;
+                % title('Input to MVDR Beamformer');
+                % % s = (strcat('Tx Location: ', loc_tx, 'Rx Location: ', loc_rx, 'Jammer Location: ', loc_jx));
+                % s = strcat(string_loc_tx, string_loc_rx, string_loc_jx);
+                % subtitle(s)
+                xlabel('Time (s)','FontSize',16);
+                ylabel('Magnitude (V)', 'FontSize',16);
+                xlim([0 0.3])
+                ylim([0 0.2])
+            end
 
             [doas] = estimateMUSIC(uraNewW, rx_total, carrierFreq, azimuth_range, elevation_range);
             fprintf("Expected DoA: \t%.2f \t%.2f \n", pathBtoA(1,1), pathBtoA(2,1))
@@ -145,7 +157,7 @@ for loc = 1:height(locations)
                 if isnan(doa_archive)
                     doa_archive = [[0;0], [0;0], [0;0]];
                 end
-                predictedDoA = predict(msvm, doa_archive);
+                predictedDoA = predict(mdl, doa_archive);
                 disp(['Predicted Azimuth: ', num2str(predictedDoA)]);
                 doas = [predictedDoA ; 0];
                 runMVDR = true;
@@ -163,7 +175,12 @@ for loc = 1:height(locations)
         disp('Running MVDR Script...');
         % ura_25 = phased.URA([2,2],'Taper',[[.25;.25],[.25;.25]], 'ElementSpacing', [1.19916 1.49895]);
         % [signal, weights] = beamformerMVDR(ura_25, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
-        [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
+        % if iteration == 1
+            [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots,loc_rx);
+        % else
+        %     [signal, weights2] = beamformerMVDR2(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots, prev_rx_total);
+        % end
+        % [signal, weights2] = beamformerMVDR(uraNewW, rx_total, noise+jx, doas, t, carrierFreq, propagation_path, show_plots);
         % [signal, weights] = beamformerMVDR(uraNewW, rx_total, noise+jx, pathBtoA, t, carrierFreq, propagation_path, show_plots);
 
         % Calculate SNR of Signal after MVDR Beamforming
@@ -215,13 +232,18 @@ end
 % Save matrix of data to csv file
 sweep = saveData(sweep, cardinal_start, cardinal_end);
 
-figure;
-scatter(sweep(:,10), sweep(:,15),[], '*','b')
+fig = figure;
+% fig.FontSize = 14; 
+scatter(0:1:47, sweep(:,15),[], '*','b')
 hold on;
-scatter(sweep(:,10), sweep(:,16),[], 'o', 'r')
-legend('Before MVDR','After MVDR')
-xlabel("Distance from Tx to Rx (meters)")
-ylabel("SNR (dB)")
+scatter(0:1:47, sweep(:,16),[], 'o', 'r')
+legend('Before MVDR','After MVDR', 'FontSize', 14)
+% title('SNR Comparison', 'FontSize', 18); % Title
+xlabel("Sample", 'FontSize',16)
+ylabel("SNR (dB)",'FontSize',16)
+set(fig, 'Color', 'w');
+grid on
+
 % scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
 % hold off;
 % scatter(sweep(:,1), sweep(:,2),[], '*','b')

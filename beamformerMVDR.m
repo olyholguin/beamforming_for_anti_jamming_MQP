@@ -1,4 +1,4 @@
-function [yURA, w] = beamformerMVDR(ura, x, noise, doas, t, carrierFreq, propagation_path, show_plots)
+function [yURA, w] = beamformerMVDR(ura, x, noise, doas, t, carrierFreq, propagation_path, show_plots, loc_rx)
 % beamformerMVDR takes in URA and DoA and outputs signal and weights
 % figure;
 % plot(abs(x))
@@ -8,20 +8,22 @@ mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
     'TrainingInputPort',true,'WeightsOutputPort',true);
 % rxSignal = x + noise; 
 % [yURA, w]= mvdrbeamformer(rxSignal, noise);
-[yURA, w]= mvdrbeamformer(x, noise);
+[yURA, w]= mvdrbeamformer(x,noise);
 
-if (show_plots)
-    figure;
+if (show_plots & loc_rx == [-46;-2;0])
+    fig= figure;
+    set(fig, 'Color', 'w');
     plot(t,abs(yURA));
     axis tight;
-    title('Output of MVDR Beamformer');
+    % title('Output of MVDR Beamformer','FontSize',18);
     % subtitle(s)
-    xlabel('Time (s)');
-    ylabel('Magnitude (V)');
+    xlabel('Time (s)','FontSize',16);
+    ylabel('Magnitude (V)', 'FontSize',16);
     xlim([0 0.3])
-    ylim([0 0.18])
+    ylim([0 0.2])
 
-    figure;
+    fig = figure;
+    set(fig, 'Color', 'w');
     p = pattern(ura, carrierFreq, -90:90, 0 ,'Weights', w,'Type','powerdb',...
         'PropagationSpeed',physconst('LightSpeed'),'Normalize',false,...
         'CoordinateSystem','rectangular');
@@ -32,9 +34,9 @@ if (show_plots)
     plot(angles, p)
     xlim([-90 90])
     xticks(-90:45:90)
-    title('Beam Pattern');
-    xlabel('Azimuth Angle (degrees)')
-    ylabel('Power (dB)')
+    % title('Beam Pattern','FontSize',18);
+    xlabel('Azimuth Angle (degrees)', 'FontSize',16)
+    ylabel('Power (dB)', 'FontSize',16)
 
     % figure;
     % polarpattern(p);
