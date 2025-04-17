@@ -21,7 +21,9 @@ if (show_plots & loc_rx == [-46;-2;0])
     ylabel('Magnitude (V)', 'FontSize',16);
     xlim([0 0.3])
     ylim([0 0.2])
-
+    set(gca,'fontsize', 16,'FontName', 'Times New Roman')
+end
+if (show_plots & loc_rx == [-2;18;0])
     fig = figure;
     set(fig, 'Color', 'w');
     p = pattern(ura, carrierFreq, -90:90, 0 ,'Weights', w,'Type','powerdb',...
@@ -37,6 +39,8 @@ if (show_plots & loc_rx == [-46;-2;0])
     % title('Beam Pattern','FontSize',18);
     xlabel('Azimuth Angle (degrees)', 'FontSize',16)
     ylabel('Power (dB)', 'FontSize',16)
+    set(gca,'fontsize', 16,'FontName', 'Times New Roman')
+    grid on
 
     % figure;
     % polarpattern(p);

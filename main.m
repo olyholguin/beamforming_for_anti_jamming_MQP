@@ -123,8 +123,11 @@ for loc = 1:height(locations)
                 % subtitle(s)
                 xlabel('Time (s)','FontSize',16);
                 ylabel('Magnitude (V)', 'FontSize',16);
+                set(gca,'fontsize', 16,'FontName', 'Times New Roman');
                 xlim([0 0.3])
                 ylim([0 0.2])
+                
+                grid on
             end
 
             [doas] = estimateMUSIC(uraNewW, rx_total, carrierFreq, azimuth_range, elevation_range);
@@ -234,14 +237,15 @@ sweep = saveData(sweep, cardinal_start, cardinal_end);
 
 fig = figure;
 % fig.FontSize = 14; 
-scatter(0:1:47, sweep(:,15),[], '*','b')
+scatter(0:1:47, sweep(:,15),[], '*','r')
 hold on;
-scatter(0:1:47, sweep(:,16),[], 'o', 'r')
+scatter(0:1:47, sweep(:,16),[], 'o', 'b')
 legend('Before MVDR','After MVDR', 'FontSize', 14)
 % title('SNR Comparison', 'FontSize', 18); % Title
 xlabel("Sample", 'FontSize',16)
 ylabel("SNR (dB)",'FontSize',16)
 set(fig, 'Color', 'w');
+set(gca,'fontsize', 16,'FontName', 'Times New Roman');
 grid on
 
 % scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
