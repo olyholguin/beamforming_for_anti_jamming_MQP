@@ -46,7 +46,7 @@ for i = 1 : 500
 end
 % Fit the model
 % mdl = fitlm(X, Y);
-msvm = fitrsvm(X, Y);
+% msvm = fitrsvm(X, Y);
 
 % mdl = fitnlm(X, azimuth_truth);
 % plot(mdl)

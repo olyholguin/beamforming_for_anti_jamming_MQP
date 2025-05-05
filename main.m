@@ -121,11 +121,14 @@ for loc = 1:height(locations)
                 % % s = (strcat('Tx Location: ', loc_tx, 'Rx Location: ', loc_rx, 'Jammer Location: ', loc_jx));
                 % s = strcat(string_loc_tx, string_loc_rx, string_loc_jx);
                 % subtitle(s)
-                xlabel('Time (s)','FontSize',16);
-                ylabel('Magnitude (V)', 'FontSize',16);
+                xlabel('Time (s)','FontSize',16,'Color', 'w');
+                ylabel('Magnitude (V)', 'FontSize',16,'Color', 'w');
+                ax = gca;
                 set(gca,'fontsize', 16,'FontName', 'Times New Roman');
                 xlim([0 0.3])
                 ylim([0 0.2])
+                ax.XColor = 'w';
+                ax.YColor = 'w';
                 
                 grid on
             end
@@ -160,7 +163,9 @@ for loc = 1:height(locations)
                 if isnan(doa_archive)
                     doa_archive = [[0;0], [0;0], [0;0]];
                 end
+                tic;
                 predictedDoA = predict(mdl, doa_archive);
+                toc;
                 disp(['Predicted Azimuth: ', num2str(predictedDoA)]);
                 doas = [predictedDoA ; 0];
                 runMVDR = true;
@@ -242,11 +247,18 @@ hold on;
 scatter(0:1:47, sweep(:,16),[], 'o', 'b')
 legend('Before MVDR','After MVDR', 'FontSize', 14)
 % title('SNR Comparison', 'FontSize', 18); % Title
-xlabel("Sample", 'FontSize',16)
-ylabel("SNR (dB)",'FontSize',16)
+xlabel("Sample", 'FontSize',16,'Color', 'w')
+ylabel("SNR (dB)",'FontSize',16,'Color', 'w')
 set(fig, 'Color', 'w');
-set(gca,'fontsize', 16,'FontName', 'Times New Roman');
-grid on
+% ax = gca;
+% set(gca,'fontsize', 16,'FontName', 'Times New Roman','XTickLabelColor', 'red', 'YTickLabelColor', 'blue');
+ax = gca;
+ax.FontSize = 16;
+ax.FontName = 'Times New Roman';
+ax.XColor = 'w';
+ax.YColor = 'w';
+grid on;
+
 
 % scatter(sweep(:,3), sweep(:,1), [], colors, 'filled')
 % hold off;

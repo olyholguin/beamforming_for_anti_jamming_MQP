@@ -8,7 +8,9 @@ mvdrbeamformer = phased.MVDRBeamformer('SensorArray',ura,...
     'TrainingInputPort',true,'WeightsOutputPort',true);
 % rxSignal = x + noise; 
 % [yURA, w]= mvdrbeamformer(rxSignal, noise);
+
 [yURA, w]= mvdrbeamformer(x,noise);
+
 
 if (show_plots & loc_rx == [-46;-2;0])
     fig= figure;
@@ -17,11 +19,14 @@ if (show_plots & loc_rx == [-46;-2;0])
     axis tight;
     % title('Output of MVDR Beamformer','FontSize',18);
     % subtitle(s)
-    xlabel('Time (s)','FontSize',16);
-    ylabel('Magnitude (V)', 'FontSize',16);
+    xlabel('Time (s)','FontSize',16,'Color', 'w');
+    ylabel('Magnitude (V)', 'FontSize',16,'Color', 'w');
     xlim([0 0.3])
     ylim([0 0.2])
     set(gca,'fontsize', 16,'FontName', 'Times New Roman')
+    ax = gca;
+    ax.XColor = 'k';
+    ax.YColor = 'k';
 end
 if (show_plots & loc_rx == [-2;18;0])
     fig = figure;
@@ -33,13 +38,16 @@ if (show_plots & loc_rx == [-2;18;0])
     %     'PropagationSpeed',physconst('LightSpeed'),...
     %     'CoordinateSystem','polar');
     angles = -90:1:90;
-    plot(angles, p)
+    plot(angles, p,'LineWidth',1.5)
     xlim([-90 90])
     xticks(-90:45:90)
     % title('Beam Pattern','FontSize',18);
-    xlabel('Azimuth Angle (degrees)', 'FontSize',16)
-    ylabel('Power (dB)', 'FontSize',16)
+    xlabel('Azimuth Angle (degrees)', 'FontSize',16,'FontWeight','bold')
+    ylabel('Power (dB)', 'FontSize',16,'FontWeight','bold')
     set(gca,'fontsize', 16,'FontName', 'Times New Roman')
+    ax = gca;
+    ax.XColor = 'k';
+    ax.YColor = 'k';
     grid on
 
     % figure;

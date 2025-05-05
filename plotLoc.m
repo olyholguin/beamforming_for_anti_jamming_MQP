@@ -31,16 +31,20 @@ h_jammer = plot(jammerloc(1), jammerloc(2), '.', 'markersize', 20, 'Color','r');
 % title("Scenario: Mobile Rx (-2, 18), Mobile Jammer (-16, 2)", "FontSize",18);
 % yline(0);
 % xline(0);
-xlabel('X (meters)','FontSize',16) ;
-ylabel('Y (meters)','FontSize',16) ;
+xlabel('X (meters)','FontSize',16,'Color', 'w') ;
+ylabel('Y (meters)','FontSize',16,'Color', 'w') ;
 legend([h_targetB, h_targetA, h_jammer], 'Cell Tower (Tx)', 'Mobile Car (Rx)', 'Mobile Car (Jammer)', 'location', 'northwest');
 xlim([-40 40]);
 ylim([-40 40]);
+% axes('XColor', 'w', 'YColor', 'w');
+
 grid on 
 grid minor
 ax = gca;
 % ax.Color = [0.5 0.5 0.5];
 ax.Color = 'k';
+ax.XColor = 'k';
+ax.YColor = 'k';
 set(ax,'fontsize', 16,'FontName', 'Times New Roman');
 
 end

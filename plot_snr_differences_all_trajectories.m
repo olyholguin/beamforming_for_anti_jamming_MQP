@@ -18,26 +18,29 @@ data_6 = [data_6; [0;0]];
 
 fig = figure;
 % scatter(1:1:50, data_1(:,1),[], '*','r');
-plot(1:1:50, data_1(:,1),'r');
+plot(1:1:50, data_1(:,1),'r','LineWidth',1.5);
 hold on;
 % scatter(1:1:50, data_1(:,1),[], '*','b');
-plot(1:1:50, data_2(:,1),'b');
+plot(1:1:50, data_2(:,1),'b','LineWidth',1.5);
 hold on;
 % scatter(1:1:50, data_1(:,1),[], '*','g')
-plot(1:1:50, data_3(:,1),'g');
+plot(1:1:50, data_3(:,1),'g','LineWidth',1.5);
 hold on;
 % scatter(1:1:50, data_1(:,1),[], '*', 'm')
-plot(1:1:50, data_4(:,1),'m');
+plot(1:1:50, data_4(:,1),'m','LineWidth',1.5);
 hold on;
 % scatter(1:1:50, data_1(:,1),[], '*','c')
-plot(1:1:50, data_5(:,1),'c');
+plot(1:1:50, data_5(:,1),'c','LineWidth',1.5);
 hold on;
 % scatter(1:1:50, data_1(:,1),[], '*','y')
-plot(1:1:50, data_6(:,1),'y');
+plot(1:1:50, data_6(:,1),'y','LineWidth',1.5);
 hold on;
 legend('North to South','North to West', 'South to North','South to West', 'West to North','West to South', 'FontSize', 14)
-xlabel("Sample", 'FontSize',16)
-ylabel("SNR Improvement (dB)",'FontSize',16)
+xlabel("Sample", 'FontSize',16,'FontWeight','bold')
+ylabel("SNR Improvement (dB)",'FontSize',16,'FontWeight','bold')
 set(fig, 'Color', 'w');
 set(gca,'fontsize', 16, 'FontName', 'Times New Roman'); 
+ax = gca;
+ax.XColor = 'k';
+                ax.YColor = 'k';
 grid on
